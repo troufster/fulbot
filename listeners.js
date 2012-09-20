@@ -11,12 +11,12 @@ function init(bot) {
   bot = bot;
 }
 
-function checkListeners(from, to, message) {
+function checkListeners(bot, from, to, message) {
   for(var i = 0, l = listeners.length; i < l; i++) {
    var listener = listeners[i];
    
    if(message.match(listener.match)) {
-     listener.func(from, to, message);
+     listener.func(bot, from, to, message);
    }  
   }
 }
