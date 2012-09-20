@@ -4,6 +4,10 @@ var log = "quotes.log";
 function write(quote, cb) {
   fs.open(log, 'a', 0666, function(err, fd) {
     if(err) return;
+
+    if(quote.length < 2) {
+      return cb(null, "Nopenopenope");
+    }
     fs.write(fd, quote + "\n", null, undefined, function(err, written) {
       cb(null, written + " bytes written");
     }); 
