@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
 var irc = require("irc");
-var chanlisteners = require('./listeners');
+var Listener = require('./listeners').Listener;
+var chanlisteners = new Listener();
+
 var fs = require("fs");
 
 var conf = {
   server : "irc.isolated.se",
-  channels : ["#botdev"],
+  channels : ["#botdev", "#sogeti"],
   nick : "Olla"
 };
 
@@ -29,6 +31,8 @@ fs.readdir(__dirname + '/plugins', function(err, f) {
     if(listener.listen.indexOf('chan') > -1) {
       chanlisteners.addListener(listener);
     }
+
+
   });
 });
 
@@ -38,7 +42,7 @@ chanlisteners.init(bot);
 bot.addListener("message", function(from, to, message) {
   if( to.match(/^[#&]/)) {
     //Chan msg
-    chanlisteners.checkListeners(bot, from, to, message);
+    chanlisteners.checkListeners(from, to, message);
   } else {
     //Priv msg
   }

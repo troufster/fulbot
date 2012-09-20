@@ -1,29 +1,32 @@
-var listeners = [];
-
-var bot = null;
-
-
-function addListener(l) {
-  listeners.push(l);
+function Listener() {
+  this.listeners = [];
+  this.bot = null;
 }
 
-function init(bot) {
-  bot = bot;
+Listener.prototype.addListener = function(l) {
+  this.listeners.push(l);
 }
 
-function checkListeners(bot, from, to, message) {
-  for(var i = 0, l = listeners.length; i < l; i++) {
-   var listener = listeners[i];
-   
+Listener.prototype.init = function(bot) {
+  this.bot = bot;
+}
+
+Listener.prototype.checkListeners =function(from, to, message) {
+  for(var i = 0, l = this.listeners.length; i < l; i++) {
+   var listener = this.listeners[i];
    if(message.match(listener.match)) {
-     listener.func(bot, from, to, message);
+     listener.func(this.bot, from, to, message);
    }  
+  }
+
+  //Debug
+  if(message.match(/\!chanlisteners/i)) {
+    for(var i = 0, l = this.listeners.length; i < l; i++) {
+      var listener = this.listeners[i];
+      this.bot.say(to, i + ": " + listener.name + "::" +  listener.match);
+    }
   }
 }
 
-module.exports = {
-  addListener : addListener,
-  init : init,
-  checkListeners : checkListeners
-};
+exports.Listener = Listener;
 

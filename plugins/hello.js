@@ -2,8 +2,9 @@
 var hellos = [
  "Woop woop!",
  "Allahu akhbar!!!11",
- "FNISS"
-];
+ "FNISS",
+ "Konsultmässighet!"
+]
 
 
 function sayHello(bot, from, to, message) {
