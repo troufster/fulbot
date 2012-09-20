@@ -1,6 +1,13 @@
 
+var hellos = [
+ "Woop woop!",
+ "Allahu akhbar!!!11",
+ "FNISS"
+];
+
+
 function sayHello(bot, from, to, message) {
-  bot.say(to, "Woooooooooooooo");
+  bot.say(to, hellos[Math.floor(Math.random() * hellos.length)]);
 }
 
 exports.listener = function(){

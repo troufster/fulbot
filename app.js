@@ -26,7 +26,6 @@ fs.readdir(__dirname + '/plugins', function(err, f) {
     var plug = require(__dirname + "/plugins/" + file);
     var listener = plug.listener();
     
-
     if(listener.listen.indexOf('chan') > -1) {
       chanlisteners.addListener(listener);
     }
