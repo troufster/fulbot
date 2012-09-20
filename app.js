@@ -8,7 +8,7 @@ var fs = require("fs");
 
 var conf = {
   server : "irc.isolated.se",
-  channels : ["#botdev"],
+  channels : ["#botdev", "#sogeti"],
   nick : "Olla"
 };
 
