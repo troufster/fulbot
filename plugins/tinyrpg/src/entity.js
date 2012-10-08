@@ -4,6 +4,8 @@ var Messages = require('./messages');
 var Vector = require('../lib/vector');
 var sys = require('util');
 var Dispatcher = require('../lib/dispatcher');
+var Dice = require('./dice');
+var Generators = require('./generators');
 
 
 function GameObject(params) {
@@ -14,7 +16,7 @@ function GameObject(params) {
 function Entity(params) {  
   GameObject.call(this,params);
   
-  this.Room = null;
+  //this.Room = null;
   this.Name = params.Name;
   this.STR = params.STR || 0;
   this.DEX = params.DEX || 0;
@@ -33,10 +35,11 @@ function Character(params) {
 
 
   this.Target = null;
-  this.Race = params.race;
+  //this.Race = params.race;
   this.AI = null;
   this.Client = params.Client;
   this.Exp = 0;
+  this.Inventory = [];
 
   
   this.Equipment = {
@@ -55,27 +58,27 @@ Character.prototype.Reset = function() {
   this.HP = this.MaxHP();
   
   this.Update();
-}
+};
 
 Character.prototype.Update = function() {  
   this.AC = this.MaxAC();
   this.DRoll = this.StatMod('DRoll');
   this.HRoll = this.StatMod('HRoll');    
-}
+};
 
 
 Character.prototype.MaxAC = function() {  
   return ~~(10 + this.StatMod('AC'));  
-}
+};
 
 Character.prototype.MaxHP = function() {
   //return Math.floor((12 + ((this.STR + this.StatMod('STR')) * 1) + (this.Level * 1)));
-  var base = (6 + this.Level);
+  var base = (8 + this.Level);
   return ~~((base * base)/10);
-}
+};
 
 Character.prototype.StatMod = function(stat) {        
-  val = 0;
+  var val = 0;
   var eq = this.Equipment;
 
   //Account for eq mods
@@ -86,20 +89,20 @@ Character.prototype.StatMod = function(stat) {
   }   
     
   return val;
-}
+};
 
 Character.prototype.Equip = function(item) {
   this.Equipment[item.Type] = item;
   Messages.Character.Equip({ actor : this.Name, item : item.Name});
   
   this.Update();  
-}
+};
 
 Character.prototype.SetTarget = function(target) {
   if(!this.Target) {
     this.Target = target;
   }
-}
+};
 
 Character.prototype.Attack = function(target) {    
     
@@ -107,8 +110,8 @@ Character.prototype.Attack = function(target) {
     
     this.AI.setState('Attack');
     
-    this.Target.Defend(this);
-}
+    target.Defend(this);
+};
 
 Character.prototype.Hit = function() {
   var target = this.Target; 
@@ -119,25 +122,67 @@ Character.prototype.Hit = function() {
     this.AI.setState('Idle');
   }
   
-}
+};
 
 Character.prototype.Defend = function(target) {
   this.SetTarget(target);
   this.AI.setState('Attack');
-}
+};
+
+Character.prototype.NextLevel = function() {
+  return  (this.Level * 10) * this.Level;
+};
+
+Character.prototype.checkLevel = function() {
+  var nextlevel = this.NextLevel();
+
+  console.log(nextlevel, this.Exp);
+
+  if(this.Exp > nextlevel) {
+    this.Level += 1;
+    this.Reset();
+
+    Messages.Character.Levelup({ actor : this.Name , level : this.Level});
+  }
+
+
+};
+
+Character.prototype.addInventory = function(item) {
+  Dispatcher.Emit({ Type: 'item', Message : { player : this.Name, item: item }});
+  this.Inventory.push(item);
+};
 
 Character.prototype.Death = function(killer) {
   killer.Target = null;  
   this.AI.setState('Dead');
+  killer.AI.setState('Idle');
+
   Dispatcher.Emit({ Type: 'death', Message : this.Name});
-}
+
+  var exp = this.Level + (Dice.D4() * 2);
+
+
+  var lootroll = Dice.DX(10);
+  
+  if(lootroll < 50){
+    var drop =  new Generators.WeaponGenerator().generate(this.Level, 10);
+
+    console.log("Lootroll", lootroll, drop);
+    killer.addInventory(drop);
+  }
+
+
+  killer.Exp += exp;
+  killer.checkLevel();
+};
 
 Character.prototype.Readable = function() {
 
-  var template = "[\x033,1{0}\x03 Lvl:{4} ({1} STR, {2} DEX, {3} MIND) State: {5}]";
+  var template = "[\x0314,1{0}\x03 Lvl:\x0314,1 {4} ({6}/{7}) \x03 HP: {8}/{9} ({1} STR, {2} DEX, {3} MIND) State: {5} ]";
 
-  return template.format(this.Name, this.STR, this.DEX, this.MIND, this.Level, this.AI.curState);
-}
+  return template.format(this.Name, this.STR, this.DEX, this.MIND, this.Level, this.AI.curState, this.Exp, this.NextLevel(), this.HP, this.MaxHP());
+};
 
 Character.prototype.Json = function() {    
   var char = { Equipment : {}};
@@ -162,7 +207,7 @@ Character.prototype.Json = function() {
     
   }
         return char;
-}
+};
 
 Character.Player = function(client, cid) {
   //Todo : fetch character by character id
@@ -171,13 +216,7 @@ Character.Player = function(client, cid) {
   c.Reset();
   
   return c;
-}
-
-
-
-
-//Base.extend(Character, Entity);
-
+};
 
 
 function Item(params){
@@ -185,9 +224,7 @@ function Item(params){
   this.Type = params.Type;   
 }
 
-//Base.extend(Item, Entity);
 sys.inherits(Item, Entity);
-
 
 exports.Entity = Entity;
 exports.Character = Character;

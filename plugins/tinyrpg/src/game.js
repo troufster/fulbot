@@ -6,7 +6,10 @@
  var Dispatcher = require('../lib/dispatcher');
  var Grid = require('../lib/grid');
  var Vector = require('../lib/vector');
- 
+ var Generators = require('./generators');
+
+
+
  function Game(bot) {
    this.Rooms = {
        'Lobby' : {}
@@ -51,11 +54,27 @@
      console.log("Tick");
    }, 2000);
 
- }
+ };
+
+ Game.prototype.getInventory = function(name, _cb) {
+   var player = this.Players[name];
+
+   if(!player) _cb('Nope');
+
+   _cb(null, player.Inventory);
+ };
+
+ Game.prototype.lookRoom = function(player, _cb) {
+   var chars = Object.keys(this.Characters);
+   var players = Object.keys(this.Players);
+
+   _cb(null, players.concat(chars));
+ };
 
  Game.prototype.playerDeath = function(name) {
    delete this.Players[name];
- }
+   delete this.Characters[name];
+ };
 
  Game.prototype.findCharacter = function(searchstr, _cb) {
    var charkeys = Object.keys(this.Characters);
@@ -94,11 +113,15 @@
  }
 
  Game.prototype.spawnMonster = function(_cb) {
-   var monster = new Character({ STR: 1, DEX: 1, MIND: 1, Name : 'Grobgorothnogothoth'});
-   monster.AI = new FSM(AI.Generic, 'Idle');
+   var gen = new Generators.MonsterGenerator().generate(10,1);
 
-   this.Characters[monster.Name] = monster;
-   _cb(null, monster);
+   for(var mon in gen) {
+     var m = gen[mon];
+
+     this.Characters[m.Name] = m;
+   }
+
+   _cb(null, gen[0]);
  }
 
  Game.prototype.getPlayerByName = function(name, _cb) {
@@ -110,8 +133,16 @@
  }
 
  Game.prototype.newPlayer = function(name, _cb) {
-   var player = new Character({ STR: 1, DEX: 1, MIND: 1, Name : name, pos : new Vector(1,1)});
+   var player = new Character({ STR: 10, DEX: 10, MIND: 10, Name : name, pos : new Vector(1,1)});
    player.AI = new FSM(AI.Generic, 'Idle');
+  player.Level = 1;
+
+   var Sword = new Item({ DEX : 1, Name : 'Sword of Quickness', DRoll : 5, Type : 'Weapon'});
+   var Armor = new Item({ AC : 5, Name : 'Cloak of Pew', Type : 'Armor'});
+
+   player.Equip(Sword);
+   player.Equip(Armor);
+   player.Reset();
 
    this.Players[name] = player;
 

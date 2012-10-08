@@ -25,6 +25,12 @@ function rpgMain(bot, from, to, message) {
       game.playerDeath(ev.Message);
     });
 
+    //Drop spam
+    Game.Dispatcher.Emitter.on('item', function(ev){
+      bot.say(to, ev.Message.player + " received " + ev.Message.item.Name );
+      console.log(ev);
+    });
+
     game.start();
   }
 
@@ -80,14 +86,36 @@ function rpgMain(bot, from, to, message) {
 
         game.findCharacter(rest, function(e, d) {
           if(e) return;
-
+          if(player.Name == d.Name) {
+            return bot.say(to, "Silly " + from + " you can't attack yourself...");
+          }
           if(d) {
             bot.say(to, from + " charges at " + d.Name);
 
             //Fight!
-            player.Attack(d);
+            if(player) player.Attack(d);
           }
         });
+      });
+      break;
+    case "look":
+      game.lookRoom(from, function(e, d) {
+        bot.say(to, d.join(", "));
+      });
+      break;
+    case "inv":
+      game.getInventory(from, function(e, d) {
+        console.log(d);
+        var print = [];
+        for(var i = 0, l = d.length; i <l; i++) {
+          print.push("{0}:{1}".format(i, d[i].Name));
+        }
+
+        if(print.length > 1) {
+          return bot.say(to, print.join("|"));
+        } else {
+          return bot.say(to, "You don't have any loots " + from + " :(");
+        }
       });
       break;
     default:

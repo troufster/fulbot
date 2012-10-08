@@ -10,8 +10,8 @@ var AI = {
   },
   
   Idle: function(agent) {
-    var val = Dice.DX(100);       
-      if(val < 3) {
+    var val = Dice.DX(500);
+      if(val < 2) {
         Messages.Idle.Random({ actor : agent.Name});
       }
   },

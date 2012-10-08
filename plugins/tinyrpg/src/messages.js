@@ -11,7 +11,7 @@ function randomize(container) {
 
 var data = {
     CombatMiss : ['{0} Misses {1}', '{0} Barely misses {1}', '{0} swings way past {1}'],
-    IdleTalk : ['{0} looks around', '{0} whistles happily']
+    IdleTalk : ['{0} looks around', '{0} whistles happily', '{0} is reading a book', '{0} picks its nose']
 };
 
 var Messages = {
@@ -32,6 +32,10 @@ var Messages = {
     Character : {
       Equip : function(params) {
         var str = '{0} equips {1}'.format(params.actor, params.item);
+        emit('character', str);
+      },
+      Levelup : function(params) {
+        var str = 'DING {0} is now level {1}'.format(params.actor, params.level);
         emit('character', str);
       }
     },
