@@ -75,7 +75,7 @@ WeaponGenerator.prototype.generate = function(lvl, cap) {
   while(len() < numstats) {
     var p = pick();
     if(pickedstats.indexOf(p) < 0) {
-      pickedstats.push(p);
+      pickedstats.push(p-1);
       console.log(pickedstats, p, len(), numstats-1);
     }
   }

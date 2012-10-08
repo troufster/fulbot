@@ -56,10 +56,23 @@
 
  };
 
+ Game.prototype.equipInventory = function(name, index) {
+   var player = this.Players[name];
+
+   if(!player) return;
+
+   var item = player.Inventory[index];
+
+   if(!item) return;
+
+   player.Equip(item);
+   player.Reset();
+ };
+
  Game.prototype.getInventory = function(name, _cb) {
    var player = this.Players[name];
 
-   if(!player) _cb('Nope');
+   if(!player) return _cb('Nope');
 
    _cb(null, player.Inventory);
  };
@@ -137,12 +150,14 @@
    player.AI = new FSM(AI.Generic, 'Idle');
   player.Level = 1;
 
-   var Sword = new Item({ DEX : 1, Name : 'Sword of Quickness', DRoll : 5, Type : 'Weapon'});
-   var Armor = new Item({ AC : 5, Name : 'Cloak of Pew', Type : 'Armor'});
+  // var Sword = new Item({ DEX : 1, Name : 'Sword of Quickness', DRoll : 5, Type : 'Weapon'});
+   //var Armor = new Item({ AC : 5, Name : 'Cloak of Pew', Type : 'Armor'});
 
+   /*
    player.Equip(Sword);
    player.Equip(Armor);
    player.Reset();
+   */
 
    this.Players[name] = player;
 

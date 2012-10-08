@@ -80,6 +80,7 @@ function rpgMain(bot, from, to, message) {
       });
       break;
     case "fight":
+    case "kill":
 
       game.getPlayerByName(from, function(e, player){
         if(e) return;
@@ -105,16 +106,34 @@ function rpgMain(bot, from, to, message) {
       break;
     case "inv":
       game.getInventory(from, function(e, d) {
-        console.log(d);
+
+        if(!d) return;
+
+        if(d.length > 0 && rest.trim().length > 0 && !isNaN(parseFloat(rest.trim())) && isFinite(rest.trim())) {
+          bot.say(to, JSON.stringify(d[rest.trim()]));
+        }
+
         var print = [];
         for(var i = 0, l = d.length; i <l; i++) {
           print.push("{0}:{1}".format(i, d[i].Name));
         }
 
-        if(print.length > 1) {
+        if(print.length > 0) {
           return bot.say(to, print.join("|"));
         } else {
           return bot.say(to, "You don't have any loots " + from + " :(");
+        }
+      });
+      break;
+    case "equip":
+      game.getInventory(from, function(e, d) {
+
+        if(!d) return;
+
+        if(d.length > 0 && rest.trim().length > 0 && !isNaN(parseFloat(rest.trim())) && isFinite(rest.trim())) {
+          game.getPlayerByName(from, function(e, player){
+            game.equipInventory(player.Name, rest.trim());
+          });
         }
       });
       break;

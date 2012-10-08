@@ -63,7 +63,10 @@ Character.prototype.Reset = function() {
 Character.prototype.Update = function() {  
   this.AC = this.MaxAC();
   this.DRoll = this.StatMod('DRoll');
-  this.HRoll = this.StatMod('HRoll');    
+  this.HRoll = this.StatMod('HRoll');
+  this.STR = this.StatMod('STR');
+  this.DEX = this.StatMod('DEX');
+  this.MIND = this.StatMod('MIND');
 };
 
 

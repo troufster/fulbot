@@ -15,5 +15,8 @@ String.prototype.format = function() {
   return formatted;
 };
 
+String.prototype.trim = function() {
+  return this.replace(/^\s+|\s+$/g, "");
+};
 
 module.exports = b; 
