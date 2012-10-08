@@ -1,3 +1,6 @@
+
+//All code below by http://ermahgerd.jmillerdesign.com/#!/translate
+
 function str_split(string, split_length) {
     // http://kevin.vanzonneveld.net
     // +     original by: Martijn Wieringa
