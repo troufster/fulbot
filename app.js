@@ -8,8 +8,8 @@ var fs = require("fs");
 
 var conf = {
   server : "irc.isolated.se",
-  channels : ["#botdev", "#sogeti"],
-  nick : "Olla"
+  channels : ["#martin"],
+  nick : "Martin"
 };
 
 var bot = new irc.Client(conf.server, conf.nick, {

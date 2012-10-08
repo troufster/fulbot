@@ -7,6 +7,7 @@ var Dispatcher = {
     Emitter : emitter,
     Emit : function(event) {
       emitter.emit(event.Type, event);
+      console.log("Emit:" + event.Type);
     }
 };
 

@@ -52,11 +52,11 @@
 
 
  
-//player.Attack(monster1);
+player.Attack(monster1);
  
- monster1.Attack(player); 
- monster2.Attack(player);
- monster3.Attack(player);
+// monster1.Attack(player);
+ //monster2.Attack(player);
+ //monster3.Attack(player);
  
 
  

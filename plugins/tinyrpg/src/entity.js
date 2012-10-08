@@ -2,7 +2,8 @@ var Base = require('../lib/base');
 var Combat = require('./combat');
 var Messages = require('./messages');
 var Vector = require('../lib/vector');
-var sys = require('sys');
+var sys = require('util');
+var Dispatcher = require('../lib/dispatcher');
 
 
 function GameObject(params) {
@@ -29,10 +30,14 @@ sys.inherits(Entity, GameObject);
 
 function Character(params) {  
   Entity.call(this, params);
+
+
   this.Target = null;
   this.Race = params.race;
   this.AI = null;
   this.Client = params.Client;
+  this.Exp = 0;
+
   
   this.Equipment = {
       'Head' : null,
@@ -124,8 +129,15 @@ Character.prototype.Defend = function(target) {
 Character.prototype.Death = function(killer) {
   killer.Target = null;  
   this.AI.setState('Dead');
+  Dispatcher.Emit({ Type: 'death', Message : this.Name});
 }
 
+Character.prototype.Readable = function() {
+
+  var template = "[\x033,1{0}\x03 Lvl:{4} ({1} STR, {2} DEX, {3} MIND) State: {5}]";
+
+  return template.format(this.Name, this.STR, this.DEX, this.MIND, this.Level, this.AI.curState);
+}
 
 Character.prototype.Json = function() {    
   var char = { Equipment : {}};

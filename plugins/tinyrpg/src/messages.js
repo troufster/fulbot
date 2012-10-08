@@ -10,7 +10,8 @@ function randomize(container) {
 }
 
 var data = {
-    CombatMiss : ['{0} Misses {1}', '{0} Barely misses {1}', '{0} swings way past {1}']
+    CombatMiss : ['{0} Misses {1}', '{0} Barely misses {1}', '{0} swings way past {1}'],
+    IdleTalk : ['{0} looks around', '{0} whistles happily']
 };
 
 var Messages = {
@@ -36,7 +37,7 @@ var Messages = {
     },
     Idle : {
       Random : function(params) {
-        var str = '{0} looks at you, considering his chances'.format(params.actor);
+        var str = randomize(data.IdleTalk).format(params.actor);
         emit('character', str);
       }
     }

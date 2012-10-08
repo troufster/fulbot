@@ -1,5 +1,6 @@
 var Dice = require('../src/dice');
 var Messages = require('./messages');
+var Dispatcher = require('../lib/dispatcher');
 
 var AI = {
   Attack: function(agent) {
@@ -10,12 +11,13 @@ var AI = {
   
   Idle: function(agent) {
     var val = Dice.DX(100);       
-      if(val < 5) {
+      if(val < 3) {
         Messages.Idle.Random({ actor : agent.Name});
       }
   },
   None : function() {},
-  Dead : function(agent) {    
+  Dead : function(agent) {
+
   }
 };
           
@@ -24,7 +26,7 @@ var AIProfiles = {}
 
 //["State", "Entry", "Exit", [func, "State"], trans, trans]
 AIProfiles["Generic"] = {
-      'Attack' : [AI.Attack, AI.None, AI.None,[function(actor) { return (actor.HP <= 0);}, 'Dead']],      
+      'Attack' : [AI.Attack, AI.None, AI.None,[function(actor) { return (actor.HP <= 0);}, 'Dead']],
       'Idle' : [AI.Idle, AI.None, AI.None, []],
       'Dead' : [AI.None, AI.None, AI.None, []]
 };

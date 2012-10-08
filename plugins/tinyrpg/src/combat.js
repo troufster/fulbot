@@ -2,7 +2,7 @@ var Dice = require('./dice');
 var Messages = require('./messages');
 
 function Combat(attacker, defender) {
-      
+  console.log("Combat");
    //Hit Calc
   //var hit = (attacker.STR + Dice.D12() + attacker.HRoll) - defender.AC;
   var hit = Dice.D20() - defender.AC;
