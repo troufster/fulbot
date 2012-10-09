@@ -5,11 +5,12 @@ var Trivia = require("./trivia/trivia.js");
 var tt = null;
 
 function answer(bot, from, to, message){
-    if (trivia == null) {
+    if (tt == null) {
         bot.say(to, "no game started yet");
         return;
     }
-    bot.say(to, message);
+    bot.say(to, "That is correct!");
+    tt.nextQuestion();
 }
 
 
@@ -19,13 +20,17 @@ function trivia(bot, from, to, message){
         tt = new Trivia(bot, to);
     }
 
-    var parts = message.split(' ').splice(0,1);
-
-    var command = parts.splice(0,1);
+    var parts = message.split(' ');
+    parts.splice(0,1);
+    var command = parts[0];
 
     switch(command)
     {
         case "play":
+            if (parts.lengt > 1)
+                tt.newRound(parts[1]);
+            else
+                tt.newRound();
             break;
         case "add":
             break;
