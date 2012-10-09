@@ -7,7 +7,7 @@
  var Grid = require('../lib/grid');
  var Vector = require('../lib/vector');
  var Generators = require('./generators');
-
+ var Db = require('./db');
 
 
  function Game(bot) {
@@ -19,6 +19,7 @@
    this.running = false;
    this.Characters = {};
    this.Players = {};
+   this.ticks = 0;
    //Init rooms
    /*
    for(var room in this.Rooms) {
@@ -29,6 +30,15 @@
  //Expose singleton
  Game.Dispatcher = Dispatcher;
 
+ Game.prototype.save = function() {
+	for(var p in this.Players) {
+		var player = this.Players[p];
+		Db.writePlayerFile(player.Name, player, function(err, cb) {
+		
+		});
+	}
+ }
+ 
  Game.prototype.maxPlayerLevel = function() {
 	var max = 1;
 	for(var p in this.Players) {
@@ -42,13 +52,20 @@
  }
  
  Game.prototype.tick = function() {
+	this.ticks++;
+	
+	if(this.ticks > 10) {
+		this.save(),
+		this.ticks = 0;
+	}
+	
 	var chars = Object.keys(this.Characters);
 	var charcount = chars.length;
-	console.log("TICK:charcount", charcount);
+	console.log("TICK:", this.ticks);
 	if(charcount < 12) {
 		//Spawn roll
 		var roll = Dice.DX(100);
-		console.log("TICK:spawnroll", roll);
+		
 		if(roll < 20) {			
 			var monsters = new Generators.MonsterGenerator().generate(1, this.maxPlayerLevel());
 			
@@ -66,6 +83,23 @@
    that.running = true;
 
    console.log("Starting game...");
+   
+   
+   console.log("Loading players...");
+   
+   Db.getPlayerFiles(function(e, files) {
+		for(var i = 0, l = files.length; i < l ; i++) {
+			var fname = files[i];
+			
+			var name = fname.split["."][0];
+			
+			console.log("Loading player :" + name);
+			
+			//Todo: hydrate objects from json
+		}
+   });
+   
+   
    setInterval(function() {
 
       if(!that.running) return;
@@ -84,8 +118,7 @@
         //console.log(char.AI);
       }
 		
-		that.tick();
-     console.log("Tick");
+		that.tick();    
    }, 2000);
 
  };

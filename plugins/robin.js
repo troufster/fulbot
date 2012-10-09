@@ -129,6 +129,8 @@ function rpgMain(bot, from, to, message) {
 
         game.findCharacter(rest, function(e, d) {
           if(e) return;
+		  if(!player) return;
+		  if(!player.Name) return;
           if(player.Name == d.Name) {
             return bot.say(to, "Silly " + from + " you can't attack yourself...");
           }
