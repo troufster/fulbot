@@ -1,2 +1,3 @@
 *.log
 .idea/*
+resources/hangman/users.txt
