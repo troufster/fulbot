@@ -1,17 +1,43 @@
 var Game = require('./tinyrpg/src/game');
 
-
 var game = null;
+var _bot = null;
 
+function isNumeric(n) {
+return !isNaN(parseFloat(n) && isFinite(n));
+}
+
+function myChanUsers() {
+	//Todo: centralize constants
+	return _bot.chans['#martin'].users;
+}
+
+function nameUserMatch() {
+	var users = myChanUsers();
+}
 
 function rpgMain(bot, from, to, message) {
 
   if(!game) {
     game = new Game(bot);
+	_bot = bot;
 
     //Combat spam events
     Game.Dispatcher.Emitter.on('combat', function(ev){
-      bot.say(to, ev.Message );
+	
+		var userattacker = myChanUsers()[ev.Message.attacker];
+		var userdefender = myChanUsers()[ev.Message.defender];
+		
+		
+		console.log("SPAM:", userattacker, userdefender);
+
+		//Combat spam in PMs
+	 if( userattacker || userdefender ) {
+			var atk = userattacker ? ev.Message.attacker : ev.Message.defender;
+			bot.say(atk, ev.Message.message.replace(atk, 'You') );
+	  } 
+	
+      //bot.say(to, ev.Message.message + ' ' + ev.Message.attacker );
     });
 
     //Char spam events
@@ -21,13 +47,19 @@ function rpgMain(bot, from, to, message) {
 
     //Deafththb :((
     Game.Dispatcher.Emitter.on('death', function(ev){
-      bot.say(to, "R.I.P. " + ev.Message + " (lol noob)" );
-      game.playerDeath(ev.Message);
+      bot.say(to, "{0} killed {1} for {2} exp".format(ev.Message.attacker, ev.Message.defender, ev.Message.exp));
+      game.playerDeath(ev.Message.defender);
     });
 
     //Drop spam
     Game.Dispatcher.Emitter.on('item', function(ev){
       bot.say(to, ev.Message.player + " received " + ev.Message.item.Name );
+      console.log(ev);
+    });
+	
+	 //Spawn events
+    Game.Dispatcher.Emitter.on('spawn', function(ev){
+      bot.say(to, "A wild " + ev.Message.actor + " appears!" );
       console.log(ev);
     });
 
@@ -53,6 +85,8 @@ function rpgMain(bot, from, to, message) {
 */
 
   switch(command) {
+	case "n":
+	case "new":
     case "newgame":
       game.newPlayer(from, function(e,d) {
         if(!e) {
@@ -61,8 +95,12 @@ function rpgMain(bot, from, to, message) {
       });
 
       break;
+	case "s":
+	case "sta":
+	case "st":
     case "stats":
       game.getPlayerByName(from, function(e,d) {
+	  
         if(e) {
           bot.say(to, "You have no player, " + from);
           return;
@@ -74,14 +112,18 @@ function rpgMain(bot, from, to, message) {
 
       });
       break;
-    case "spawn":
+    case "spawnffs":
+	
       game.spawnMonster(function(e, d) {
         bot.say(to, "A wild " + d.Name + " appears.");
       });
+	  
       break;
+	case "k":
+	case "f":
     case "fight":
     case "kill":
-
+	
       game.getPlayerByName(from, function(e, player){
         if(e) return;
 
@@ -98,19 +140,26 @@ function rpgMain(bot, from, to, message) {
           }
         });
       });
+	  
       break;
+	case "l":
+	case "lo":
     case "look":
+	
       game.lookRoom(from, function(e, d) {
         bot.say(to, d.join(", "));
       });
+	  
       break;
+	case "i":
     case "inv":
+	
       game.getInventory(from, function(e, d) {
 
         if(!d) return;
 
-        if(d.length > 0 && rest.trim().length > 0 && !isNaN(parseFloat(rest.trim())) && isFinite(rest.trim())) {
-          bot.say(to, JSON.stringify(d[rest.trim()]));
+        if(d.length > 0 && rest.trim().length > 0 && isNumeric(rest.trim())) {
+          return bot.say(to, JSON.stringify(d[rest.trim()]));
         }
 
         var print = [];
@@ -124,19 +173,48 @@ function rpgMain(bot, from, to, message) {
           return bot.say(to, "You don't have any loots " + from + " :(");
         }
       });
+	  
       break;
+	case "e":
     case "equip":
       game.getInventory(from, function(e, d) {
 
         if(!d) return;
 
-        if(d.length > 0 && rest.trim().length > 0 && !isNaN(parseFloat(rest.trim())) && isFinite(rest.trim())) {
+        if(d.length > 0 && rest.trim().length > 0 && isNumeric(rest.trim())) {
           game.getPlayerByName(from, function(e, player){
             game.equipInventory(player.Name, rest.trim());
           });
         }
       });
       break;
+	case "sp":
+	case "spend": 
+		var p = rest.split(" ");
+		
+		if(p.length != 2) return;
+		
+		var stat = p[0];
+		var val = p[1];
+		
+		if(['STR', 'DEX', 'MIND'].indexOf(stat.toUpperCase()) < 0) return;
+		if(!isNumeric(val)) return;
+		
+		game.spendPoints(from, stat, val);
+		
+		break;
+	case "ins":
+	case "inspect":
+		var p = rest.trim();
+		if(!p) returnM
+		
+		game.findCharacter(p, function(e, c) {
+			if(c) {
+				bot.say(to,c.Readable());
+			}
+		});
+		
+		break;
     default:
 
       break;

@@ -25,6 +25,11 @@ function Entity(params) {
   this.Level = 1;    
   this.HRoll = params.HRoll || 0;
   this.DRoll = params.DRoll || 0;  
+  
+  this.STRbase = 0;
+  this.DEXbase = 0;
+  this.MINDbase = 0;
+  this.Unassigned = 0;
 }
 
 
@@ -54,6 +59,14 @@ function Character(params) {
 
 sys.inherits(Character, Entity);
 
+Character.prototype.Regen = function() {
+	var max = this.MaxHP();
+	
+	if(this.HP < max) {
+		this.HP += 1;
+	}
+}
+
 Character.prototype.Reset = function() {
   this.HP = this.MaxHP();
   
@@ -64,11 +77,10 @@ Character.prototype.Update = function() {
   this.AC = this.MaxAC();
   this.DRoll = this.StatMod('DRoll');
   this.HRoll = this.StatMod('HRoll');
-  this.STR = this.StatMod('STR');
-  this.DEX = this.StatMod('DEX');
-  this.MIND = this.StatMod('MIND');
+  this.STR = this.StatMod('STR') + this.STRbase;
+  this.DEX = this.StatMod('DEX') + this.DEXbase;
+  this.MIND = this.StatMod('MIND') + this.MINDbase;
 };
-
 
 Character.prototype.MaxAC = function() {  
   return ~~(10 + this.StatMod('AC'));  
@@ -76,7 +88,7 @@ Character.prototype.MaxAC = function() {
 
 Character.prototype.MaxHP = function() {
   //return Math.floor((12 + ((this.STR + this.StatMod('STR')) * 1) + (this.Level * 1)));
-  var base = (8 + this.Level);
+  var base = ((8 + this.Level) + ((this.STR + this.StatMod('STR')) * 0.3));
   return ~~((base * base)/10);
 };
 
@@ -143,6 +155,7 @@ Character.prototype.checkLevel = function() {
 
   if(this.Exp > nextlevel) {
     this.Level += 1;
+	this.Unassigned += 5;
     this.Reset();
 
     Messages.Character.Levelup({ actor : this.Name , level : this.Level});
@@ -161,14 +174,15 @@ Character.prototype.Death = function(killer) {
   this.AI.setState('Dead');
   killer.AI.setState('Idle');
 
-  Dispatcher.Emit({ Type: 'death', Message : this.Name});
+  
 
   var exp = this.Level + (Dice.D4() * 2);
+Dispatcher.Emit({ Type: 'death', Message : { attacker : killer.Name , defender : this.Name, exp : exp}});
 
-
-  var lootroll = Dice.DX(10);
+  var lootroll = Dice.DX(100);
   
-  if(lootroll < 50){
+  if(lootroll < 10){
+	//Todo: Drop one item from inventory if anything is in it
     var drop =  new Generators.WeaponGenerator().generate(this.Level, 10);
 
     console.log("Lootroll", lootroll, drop);
@@ -182,9 +196,9 @@ Character.prototype.Death = function(killer) {
 
 Character.prototype.Readable = function() {
 
-  var template = "[\x0314,1{0}\x03 Lvl:\x0314,1 {4} ({6}/{7}) \x03 HP: {8}/{9} ({1} STR, {2} DEX, {3} MIND) State: {5} ]";
+  var template = "[\x0314,1{0}\x03 Lvl:\x0314,1 {4} ({6}/{7}) \x03 HP: {8}/{9} ({1} STR, {2} DEX, {3} MIND)({10}) State: {5} ]";
 
-  return template.format(this.Name, this.STR, this.DEX, this.MIND, this.Level, this.AI.curState, this.Exp, this.NextLevel(), this.HP, this.MaxHP());
+  return template.format(this.Name, this.StatMod('STR') + this.STRbase, this.StatMod('DEX') + this.DEXbase, this.StatMod('MIND') + this.MINDbase, this.Level, this.AI.curState, this.Exp, this.NextLevel(), this.HP, this.MaxHP(), this.Unassigned);
 };
 
 Character.prototype.Json = function() {    

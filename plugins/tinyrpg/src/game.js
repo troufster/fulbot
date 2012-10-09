@@ -29,6 +29,37 @@
  //Expose singleton
  Game.Dispatcher = Dispatcher;
 
+ Game.prototype.maxPlayerLevel = function() {
+	var max = 1;
+	for(var p in this.Players) {
+		if (this.Players[p].Level > max) {
+			max = this.Players[p].Level;
+		}
+	}
+	
+	console.log("MAXLEVEL:", max);
+	return max;
+ }
+ 
+ Game.prototype.tick = function() {
+	var chars = Object.keys(this.Characters);
+	var charcount = chars.length;
+	console.log("TICK:charcount", charcount);
+	if(charcount < 12) {
+		//Spawn roll
+		var roll = Dice.DX(100);
+		console.log("TICK:spawnroll", roll);
+		if(roll < 20) {			
+			var monsters = new Generators.MonsterGenerator().generate(1, this.maxPlayerLevel());
+			
+			for(var m in monsters) {
+				var mon = monsters[m];
+				this.Characters[mon.Name] = mon;
+				Dispatcher.Emit({ Type: 'spawn', Message : { actor : mon.Name}});
+			}
+		}
+	}
+ }
 
  Game.prototype.start = function() {
    var that = this;
@@ -42,20 +73,37 @@
       for(var char in that.Characters) {
         var c = that.Characters[char];
         c.AI.runCurrent(c);
+		//c.Regen();
         //console.log(that.CH);
       }
 
       for(var pl in that.Players) {
         var p = that.Players[pl];
         p.AI.runCurrent(p);
+		p.Regen();
         //console.log(char.AI);
       }
-
+		
+		that.tick();
      console.log("Tick");
    }, 2000);
 
  };
 
+ 
+ Game.prototype.spendPoints = function(name, stat, points, _cb) {
+	var player = this.getPlayerByName(name, function(e, player) {
+		if(e || !player) _cb('Nope');
+		
+		var p = parseInt(points);		
+		if(p <= player.Unassigned) {
+			player[stat.toUpperCase()+ 'base'] += p;
+			player.Unassigned -= points;
+			player.Reset();
+		}
+	});
+ }
+ 
  Game.prototype.equipInventory = function(name, index) {
    var player = this.Players[name];
 
@@ -146,10 +194,18 @@
  }
 
  Game.prototype.newPlayer = function(name, _cb) {
-   var player = new Character({ STR: 10, DEX: 10, MIND: 10, Name : name, pos : new Vector(1,1)});
+   var player = new Character({ STR: 0, DEX: 0, MIND: 0, Name : name, pos : new Vector(1,1)});
    player.AI = new FSM(AI.Generic, 'Idle');
-  player.Level = 1;
+ 
+  
+  var level = 1;
 
+    player.Unassigned = level * 5;
+  player.Level = level;
+  
+  player.Update();
+  player.Reset();
+  
   // var Sword = new Item({ DEX : 1, Name : 'Sword of Quickness', DRoll : 5, Type : 'Weapon'});
    //var Armor = new Item({ AC : 5, Name : 'Cloak of Pew', Type : 'Armor'});
 

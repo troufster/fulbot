@@ -18,15 +18,19 @@ var Messages = {
     Combat : {
       Miss : function(params){
         var str = randomize(data.CombatMiss).format(params.attacker, params.defender);
-        emit('combat', str );
+        emit('combat', { message : str, attacker : params.attacker, defender : params.defender } );
       },
       Death : function(params) {
-        var str = '{0} deals {1} damage, killing {2}'.format(params.attacker, params.dmg, params.defender); 
-        emit('combat', str );
+        var str = '{0} deal {1} damage, killing {2}'.format(params.attacker, params.dmg, params.defender); 
+        emit('combat',  { message : str, attacker : params.attacker, defender : params.defender });
       },
       Hit : function(params) {
-        var str = '{0} hits {1} for {2} damage'.format(params.attacker, params.defender, params.dmg);
-        emit('combat', str);
+        var str = '{0} hit {1} for {2} damage'.format(params.attacker, params.defender, params.dmg);
+        emit('combat', { message : str, attacker : params.attacker, defender : params.defender });
+      },
+	  Crit : function(params) {
+        var str = '{0} critically hit {1} for {2} damage'.format(params.attacker, params.defender, params.dmg);
+        emit('combat', { message : str, attacker : params.attacker, defender : params.defender });
       }
     },
     Character : {

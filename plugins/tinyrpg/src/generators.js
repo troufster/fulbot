@@ -3,6 +3,7 @@ var AI = require('./ai');
 var Dice = require('./dice');
 
 
+
 function MonsterGenerator() {
   this.Character =require('./entity').Character;
   this.pre = ['Gr', 'Kr', 'Gu', 'Ar', 'Ug', 'Bu', 'Co', 'Lo', 'Af', 'Robin', 'Ulla'];
@@ -10,9 +11,30 @@ function MonsterGenerator() {
   this.end = ['oth', 'ork', 'ith', 'eth', 'ath', 'ir', 'id', 'ed', 'eng', 'sson', 'zor', 'zorzor'];
 }
 
-MonsterGenerator.prototype.generate = function(num, level) {
+MonsterGenerator.prototype.stat = function(level, pool) {
+	if(pool <= 0) {
+		return [0, 0];
+	}
+	
+	var s= (level *2) + Dice.DX(4);
+	
+	pool -= s;
+	
+	if(pool <= 0) {
+		return [s+pool, pool];
+	}
+	
+	return [s, pool];
+}
+
+MonsterGenerator.prototype.generate = function(num, maxlevel) {
   var ret=[];
 
+  var level = Dice.DX(maxlevel);
+    
+	//Todo: centralize constants
+  var pool = level * 5;
+  
   for(var i = 0, l = num; i < l; i++) {
 
     var name = this.pre[Dice.DX(this.pre.length)-1] +
@@ -20,8 +42,29 @@ MonsterGenerator.prototype.generate = function(num, level) {
           this.end[Dice.DX(this.end.length)-1];
 
 
-    var monster = new this.Character({ STR: (level *2) + Dice.D4(), DEX: (level *2) + Dice.D4(), MIND: (level *2) + Dice.D4(), Name : name});
-    monster.AI = new FSM(AI.Generic, 'Idle');
+    var monster = new this.Character({ Name : name});
+
+	var s1 = this.stat(level, pool);
+	
+	monster.STRbase = s1[0];
+	
+	
+
+	var s2 = this.stat(level, s1[1]);
+	
+	
+	monster.DEXbase = s2[0];
+	
+	var s3 = this.stat(level, s2[1]);
+
+	
+	monster.MINDbase = s3[0];
+	monster.Level = level;
+	monster.Update();
+	monster.Reset();
+
+	//console.log(monster);
+   monster.AI = new FSM(AI.Generic, 'Idle');
     ret.push(monster);
 
   }
@@ -30,7 +73,6 @@ MonsterGenerator.prototype.generate = function(num, level) {
 
   return ret;
 };
-
 
 exports.MonsterGenerator = MonsterGenerator;
 

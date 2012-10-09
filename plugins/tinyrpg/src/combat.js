@@ -21,12 +21,22 @@ function Combat(attacker, defender) {
      var save = Math.floor((defender.Level / 4) + (defender.AC / 4));
               
      //var dmg = Dice.D6();//
-     var dmg = Dice.D6() + attacker.DRoll - save;
+     var dmg = Math.floor(Dice.D6() + (attacker.STR * 0.5) + attacker.DRoll - save);
      
+	 //10 dex = 1% crit
+	 var crit = Dice.DX(100) < (attacker.DEX/10);
+	 
+	 if (crit) {
+		dmg = dmg *  2;
+	 }
+	 
      if (dmg <= 0) {
        dmg = 0;
      }
      
+	 
+	 
+	 
      defender.HP -= dmg;          
                       
      //Death
@@ -34,7 +44,12 @@ function Combat(attacker, defender) {
        Messages.Combat.Death({ attacker : attacker.Name, defender : defender.Name, dmg : dmg});
        defender.Death(attacker);
      } else {
-       Messages.Combat.Hit({ attacker : attacker.Name, defender : defender.Name, dmg : dmg});
+		if(crit) {
+		Messages.Combat.Crit({ attacker : attacker.Name, defender : defender.Name, dmg : dmg});
+		} 
+		else {
+		Messages.Combat.Hit({ attacker : attacker.Name, defender : defender.Name, dmg : dmg});
+	   }
      }
    }
    
