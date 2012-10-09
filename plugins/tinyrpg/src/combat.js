@@ -3,14 +3,11 @@ var Messages = require('./messages');
 
 function Combat(attacker, defender) {
 
-
-
-  console.log("Combat");
    //Hit Calc
   //var hit = (attacker.DEX + (Dice.D12() + 2) + attacker.HRoll) - (defender.AC * 0.6);
   var hit = (Dice.D20() + attacker.DEX + attacker.HRoll) - (defender.AC * 0.6);
 
-  console.log("HITCALC",hit, attacker.AI.curState, defender.AI.curState);
+  //console.log("HITCALC",hit, attacker.AI.curState, defender.AI.curState);
 
    if(hit <= 0) {
 

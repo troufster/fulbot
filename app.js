@@ -8,8 +8,8 @@ var chanlisteners = new Listener();
 
 var conf = {
   server : "irc.isolated.se",
-  channels : ["#botdev" /*, "#sogeti"*/],
-  nick : "hangman"
+  channels : ["#martin"],
+  nick : "Martin"
 };
 
 var bot = new irc.Client(conf.server, conf.nick, {

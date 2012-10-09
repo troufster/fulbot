@@ -6,9 +6,9 @@ var Dice = require('./dice');
 
 function MonsterGenerator() {
   this.Character =require('./entity').Character;
-  this.pre = ['Gr', 'Kr', 'Gu', 'Ar', 'Ug', 'Bu', 'Co', 'Lo', 'Af', 'Robin', 'Ulla'];
-  this.mid = ['og', 'ib', 'is', 'id', 'ad', 'ed', 'ro', 'fn', 'sxe'];
-  this.end = ['oth', 'ork', 'ith', 'eth', 'ath', 'ir', 'id', 'ed', 'eng', 'sson', 'zor', 'zorzor'];
+  this.pre = ['Gr', 'Kr', 'Gu', 'Ar', 'Ug', 'Bu', 'Co', 'Lo', 'Af', 'Robin', 'Ulla', 'Le'];
+  this.mid = ['og', 'ib', 'is', 'id', 'ad', 'ed', 'ro', 'fn', 'sxe', 'lele'];
+  this.end = ['oth', 'ork', 'ith', 'eth', 'ath', 'ir', 'id', 'ed', 'eng', 'sson', 'zor', 'zorzor', 'lele'];
 }
 
 MonsterGenerator.prototype.stat = function(level, pool) {
@@ -75,6 +75,12 @@ MonsterGenerator.prototype.generate = function(num, maxlevel) {
 
 exports.MonsterGenerator = MonsterGenerator;
 
+//TOdo fixed affixes
+var affixes = {
+  'eating' : { STR : 4 },
+  'cowards' : { DEX : 4},
+  'heroes'  : { MIND : 4}
+};
 
 function WeaponGenerator() {
   this.Item = require('./entity').Item;

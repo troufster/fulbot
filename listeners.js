@@ -102,7 +102,7 @@ Listener.prototype.checkListeners =function(from, to, message) {
       this.bot.say(to, i + ": " + listener.name + "::" +  listener.match);
     }
   }
-  if(message.match(/\!chaninitplugins/i)){
+  if(message.match(/^\!rehash/i)){
     if (this.utils.isUserOperator(to, from)){
         var parts = message.split(" ");
         parts = parts.slice(1,parts.length);
