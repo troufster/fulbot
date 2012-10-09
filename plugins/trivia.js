@@ -1,16 +1,16 @@
 var util = require('util');
 
-var Trivia = require("./trivia/trivia.js");
+var Trivia = require("./trivia/trivia.js").Trivia;
 
 var tt = null;
 
 function answer(bot, from, to, message){
-    if (tt == null) {
+    if (tt == null || !tt.running) {
         bot.say(to, "no game started yet");
         return;
     }
-    bot.say(to, "That is correct!");
-    tt.nextQuestion();
+    tt.giveAnswer(from, message.replace('@',''));
+
 }
 
 
@@ -50,3 +50,9 @@ exports.listeners = function(){return [{
     func : answer,
     listen : ["chan"]
 }]};
+
+exports.unload = function(){
+    var f = require.resolve("./trivia/trivia.js");
+    require.cache[f].exports.unload();
+    delete require.cache[f];
+}

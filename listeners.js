@@ -17,9 +17,16 @@ Listener.prototype.init = function(bot) {
   this.utils.init(bot);
 }
 
-Listener.prototype.loadPlugin =  function (plugName) {
+Listener.prototype.loadPlugin =  function (plugName, unload) {
 
-    delete require.cache[require.resolve(plugName)];
+    if (unload){
+        var f = require.resolve(plugName);
+        if (require.cache[f].exports.unload !== undefined) {
+            require.cache[f].exports.unload();
+        }
+
+        delete require.cache[f];
+    }
     var plug = require(plugName);
 
     if (plug.listener !== undefined) {
@@ -39,7 +46,7 @@ Listener.prototype.loadPlugin =  function (plugName) {
 
 }
 
-Listener.prototype.loadPlugins = function(cb, plugin){
+Listener.prototype.loadPlugins = function(cb, plugin, unload){
     var that = this;
     if (plugin == null) {
         this.listeners = [];
@@ -51,7 +58,7 @@ Listener.prototype.loadPlugins = function(cb, plugin){
             f.forEach(function(file) {
                 if(file.indexOf(".js") < 0) return;
                 var plugName = __dirname.replace(/\\/g,'/' ) + "/plugins/" + file;
-                that.loadPlugin(plugName);
+                that.loadPlugin(plugName, unload);
 
             });
         });
@@ -68,7 +75,7 @@ Listener.prototype.loadPlugins = function(cb, plugin){
         var plugName = __dirname.replace(/\\/g,'/' ) + "/plugins/" + plugin + '.js';
         fs.exists(plugName  , function (exists) {
             if (exists) {
-                that.loadPlugin(plugName);
+                that.loadPlugin(plugName, unload);
                 if (cb != null){cb(null, util.format("%s reloaded", plugin));}
             }else {
                 if (cb != null){ cb(null, util.format("file for %s not found", plugin));}
@@ -106,13 +113,13 @@ Listener.prototype.checkListeners =function(from, to, message) {
                 that.loadPlugins(function(err, d) {
                     if(err) return;
                     that.bot.say(to, d);
-                }, p);
+                }, p, true);
             });
         } else {
             this.loadPlugins(function(err, d) {
                 if(err) return;
                 that.bot.say(to, d);
-            }, null);
+            }, null, true);
         }
     } else {
         this.bot.say(to, "Sorry, you need to be op to use this command.");

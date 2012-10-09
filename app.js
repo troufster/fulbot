@@ -17,7 +17,7 @@ var bot = new irc.Client(conf.server, conf.nick, {
   channels : conf.channels
 });
 
-chanlisteners.loadPlugins(null,null);
+chanlisteners.loadPlugins(null,null, false);
 chanlisteners.init(bot);
 
 bot.addListener("message", function(from, to, message) {
