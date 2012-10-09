@@ -7,10 +7,11 @@
  * @param {State} is Initial state of FSM
  * @constructor
  */
-function FSM(s,is) {
+function FSM(s,is, name) {
   this.states = s;
   this.iState = is;
   this.curState = is;
+  this.profile = name
 };
 
 /**

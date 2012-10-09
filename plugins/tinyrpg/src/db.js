@@ -13,15 +13,18 @@ function getPlayerFile(name, _cb) {
 
 function writePlayerFile(name, data, _cb) {
 	var filename = prefix + name + '.player';
+
+
+
 	storage.writeFileJSON(filename, data, function(err, d) {
 		if(err) return _cb(err);
 		
-		_cb(d);
-	});;
+		_cb(null, d);
+	});
 }
 
 function getPlayerFiles(_cb) {
-	storage.dir('../../../../resources/tinyrpg/', function(err, files) {
+	storage.dir('/../../../resources/tinyrpg/', function(err, files) {
 		if(err) return _cb(err);
 		
 		var ret = [];

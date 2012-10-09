@@ -15,6 +15,14 @@ var AI = {
         Messages.Idle.Random({ actor : agent.Name});
       }
   },
+  Protective : function(agent) {
+
+  },
+  ProtectiveEntry : function(agent) {
+    Dispatcher.Emitter.on('combat', function(ev){
+      Dispatcher.Emit({ Type: 'aggro', Message :ev.Message });
+    });
+  },
   None : function() {},
   Dead : function(agent) {
 
@@ -27,8 +35,15 @@ var AIProfiles = {}
 //["State", "Entry", "Exit", [func, "State"], trans, trans]
 AIProfiles["Generic"] = {
       'Attack' : [AI.Attack, AI.None, AI.None,[function(actor) { return (actor.HP <= 0);}, 'Dead']],
-      'Idle' : [AI.Idle, AI.None, AI.None, []],
-      'Dead' : [AI.None, AI.None, AI.None, []]
+      'Idle' : [AI.Idle, AI.None, AI.None, [function() { return false; }, '']],
+      'Dead' : [AI.None, AI.None, AI.None, [function() { return false; }, '']]
+};
+
+AIProfiles["Protective"] = {
+  'Attack' : [AI.Attack, AI.None, AI.None,[function(actor) { return (actor.HP <= 0);}, 'Dead']],
+  'Idle' : [AI.Protective, AI.ProtectiveEntry, AI.None, [function() { return false; }, '']],
+  'Dead' : [AI.None, AI.None, AI.None, [function() { return false; }, '']],
+  'Foo' : [AI.None, AI.None, AI.None, [function() { return true; }, 'Idle']]
 };
 
 

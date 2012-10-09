@@ -6,6 +6,8 @@ var sys = require('util');
 var Dispatcher = require('../lib/dispatcher');
 var Dice = require('./dice');
 var Generators = require('./generators');
+var AI = require('./ai');
+var FSM = require('../lib/fsm');
 
 
 function GameObject(params) {
@@ -22,14 +24,14 @@ function Entity(params) {
   this.DEX = params.DEX || 0;
   this.MIND = params.MIND || 0;
   this.AC = params.AC || 0;
-  this.Level = 1;    
+  this.Level = params.Level || 1;
   this.HRoll = params.HRoll || 0;
   this.DRoll = params.DRoll || 0;  
   
-  this.STRbase = 0;
-  this.DEXbase = 0;
-  this.MINDbase = 0;
-  this.Unassigned = 0;
+  this.STRbase = params.STRbase || 0;
+  this.DEXbase = params.DEXbase || 0;
+  this.MINDbase = params.MINDbase || 0;
+  this.Unassigned = params.Unassigned || 0;
 }
 
 
@@ -43,11 +45,11 @@ function Character(params) {
   //this.Race = params.race;
   this.AI = null;
   this.Client = params.Client;
-  this.Exp = 0;
-  this.Inventory = [];
+  this.Exp = params.Exp || 0;
+  this.Inventory = params.Inventory || [];
 
   
-  this.Equipment = {
+  this.Equipment = params.Equipment || {
       'Head' : null,
       'Armor' : null,
       'Weapon' : null,
@@ -63,7 +65,11 @@ Character.prototype.Regen = function() {
 	var max = this.MaxHP();
 	
 	if(this.HP < max) {
-		this.HP += 1;
+		this.HP += Math.floor(1 + (this.MIND * 0.05));
+
+    if(this.HP > max) {
+      this.HP = max;
+    }
 	}
 }
 
@@ -216,7 +222,8 @@ Character.prototype.Json = function() {
       if(prop == 'Client') continue;
       
       if(prop == 'Target') {
-        char[prop] = this[prop] == null ? null : this[prop].Json();
+        //char[prop] = this[prop] == null ? null : this[prop].Json();
+        continue;
       }
     } 
       
@@ -225,6 +232,15 @@ Character.prototype.Json = function() {
   }
         return char;
 };
+
+
+Character.fromJSON = function(json) {
+  var c = new Character(json);
+  //console.log(json.AI.profile, AI[json.AI.profile]);
+  c.AI = new FSM(AI[json.AI.profile],'Idle', json.AI.profile);
+
+  return c;
+}
 
 Character.Player = function(client, cid) {
   //Todo : fetch character by character id

@@ -23,8 +23,8 @@ function Combat(attacker, defender) {
      //var dmg = Dice.D6();//
      var dmg = Math.floor(Dice.D6() + (attacker.STR * 0.5) + attacker.DRoll - save);
      
-	 //10 dex = 1% crit
-	 var crit = Dice.DX(100) < (attacker.DEX/10);
+	 //10 dex = 1% crit, 5% base
+	 var crit = Dice.DX(100) - 5 < (attacker.DEX/10) ;
 	 
 	 if (crit) {
 		dmg = dmg *  2;

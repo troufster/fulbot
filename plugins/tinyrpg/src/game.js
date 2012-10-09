@@ -30,14 +30,74 @@
  //Expose singleton
  Game.Dispatcher = Dispatcher;
 
- Game.prototype.save = function() {
-	for(var p in this.Players) {
-		var player = this.Players[p];
-		Db.writePlayerFile(player.Name, player, function(err, cb) {
-		
-		});
-	}
- }
+ Game.prototype.listeners = function() {
+   console.log("Setting up listeners...");
+
+   Dispatcher.Emitter.on('aggro', function(ev){
+     console.log('AGGRO', ev);
+   });
+ };
+
+
+ Game.prototype.start = function() {
+   var that = this;
+   that.running = true;
+
+   console.log("Starting game...");
+
+   that.listeners();
+
+   console.log("Loading players...");
+
+   Db.getPlayerFiles(function(e, files) {
+
+     if(!files) return;
+     for(var i = 0, l = files.length; i < l ; i++) {
+       var fname = files[i];
+
+
+       var name = fname.split(".")[0];
+
+       Db.getPlayerFile(name, function(err, d) {
+         if(err) return;
+
+         console.log("Loading player: " + name);
+         var p = Character.fromJSON(d);
+
+         that.Players[p.Name] = p;
+       });
+       //Todo: hydrate objects from json
+     }
+
+     that.tick();
+   });
+
+
+   setInterval(function() {
+
+     if(!that.running) return;
+
+
+     that.tick();
+   }, 2000);
+
+ };
+
+ Game.prototype.save = function(name, _cb) {
+
+
+		this.getPlayerByName(name, function(err, player) {
+
+      if(err || !player) {
+        return _cb('No such player');
+      }
+
+      if(player.AI.curState != 'Idle') return _cb("Cant save you when you're busy " + player.Name);
+
+      Db.writePlayerFile(player.Name,player, _cb);
+    });
+
+ };
  
  Game.prototype.maxPlayerLevel = function() {
 	var max = 1;
@@ -53,9 +113,9 @@
  
  Game.prototype.tick = function() {
 	this.ticks++;
-	
+	var that = this;
+
 	if(this.ticks > 10) {
-		this.save(),
 		this.ticks = 0;
 	}
 	
@@ -76,52 +136,25 @@
 			}
 		}
 	}
- }
 
- Game.prototype.start = function() {
-   var that = this;
-   that.running = true;
+   for(var char in that.Characters) {
+     var c = that.Characters[char];
 
-   console.log("Starting game...");
-   
-   
-   console.log("Loading players...");
-   
-   Db.getPlayerFiles(function(e, files) {
-		for(var i = 0, l = files.length; i < l ; i++) {
-			var fname = files[i];
-			
-			var name = fname.split["."][0];
-			
-			console.log("Loading player :" + name);
-			
-			//Todo: hydrate objects from json
-		}
-   });
-   
-   
-   setInterval(function() {
+     c.AI.runCurrent(c);
+     c.AI.update(c);
+     //c.Regen();
+     //console.log(that.CH);
+   }
 
-      if(!that.running) return;
-
-      for(var char in that.Characters) {
-        var c = that.Characters[char];
-        c.AI.runCurrent(c);
-		//c.Regen();
-        //console.log(that.CH);
-      }
-
-      for(var pl in that.Players) {
-        var p = that.Players[pl];
-        p.AI.runCurrent(p);
-		p.Regen();
-        //console.log(char.AI);
-      }
-		
-		that.tick();    
-   }, 2000);
-
+   for(var pl in that.Players) {
+     var p = that.Players[pl];
+     p.AI.runCurrent(p);
+     p.AI.update(p);
+     p.Regen();
+     //console.log(char.AI);
+   }
  };
+
 
  
  Game.prototype.spendPoints = function(name, stat, points, _cb) {
@@ -135,8 +168,18 @@
 			player.Reset();
 		}
 	});
- }
- 
+ };
+
+
+ Game.prototype.throwInventory = function(name, index) {
+   var player = this.Players[name];
+
+   if(!player) return;
+
+   player.Inventory.splice(index,1);
+
+ };
+
  Game.prototype.equipInventory = function(name, index) {
    var player = this.Players[name];
 
@@ -228,7 +271,7 @@
 
  Game.prototype.newPlayer = function(name, _cb) {
    var player = new Character({ STR: 0, DEX: 0, MIND: 0, Name : name, pos : new Vector(1,1)});
-   player.AI = new FSM(AI.Generic, 'Idle');
+   player.AI = new FSM(AI.Generic, 'Idle', 'Generic');
  
   
   var level = 1;

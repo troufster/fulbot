@@ -190,6 +190,18 @@ function rpgMain(bot, from, to, message) {
         }
       });
       break;
+ case "throw":
+      game.getInventory(from, function(e, d) {
+
+        if(!d) return;
+
+        if(d.length > 0 && rest.trim().length > 0 && isNumeric(rest.trim())) {
+          game.getPlayerByName(from, function(e, player){
+            game.throwInventory(player.Name, rest.trim());
+          });
+        }
+      });
+      break;
 	case "sp":
 	case "spend": 
 		var p = rest.split(" ");
@@ -208,7 +220,7 @@ function rpgMain(bot, from, to, message) {
 	case "ins":
 	case "inspect":
 		var p = rest.trim();
-		if(!p) returnM
+		if(!p) return;
 		
 		game.findCharacter(p, function(e, c) {
 			if(c) {
@@ -217,7 +229,17 @@ function rpgMain(bot, from, to, message) {
 		});
 		
 		break;
-    default:
+  case "save":
+    var p = from.trim();
+    if(!p) return;
+
+    game.save(p, function(err, x){
+      if(err) return bot.say(to, err);
+
+      bot.say(to, p + ' saved!');
+    });
+      break;
+  default:
 
       break;
   }

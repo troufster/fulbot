@@ -64,14 +64,13 @@ MonsterGenerator.prototype.generate = function(num, maxlevel) {
 	monster.Reset();
 
 	//console.log(monster);
-   monster.AI = new FSM(AI.Generic, 'Idle');
+   monster.AI = new FSM(AI.Protective, 'Foo', 'Protective');
     ret.push(monster);
 
   }
 
-
-
   return ret;
+
 };
 
 exports.MonsterGenerator = MonsterGenerator;
@@ -124,6 +123,7 @@ WeaponGenerator.prototype.generate = function(lvl, cap) {
 
   //Assign stats.
   var item = new this.Item({ Name : name, Type : 'Weapon' });
+  item.Level = lvl;
 
   for(var i = 0; i < pickedstats.length; i++) {
     item[stats[pickedstats[i]]] = Math.floor((modweight/2) + Dice.DX(2) * lvl * 0.5)+prefixWeight;
