@@ -4,12 +4,12 @@ var irc = require("irc");
 var Listener = require('./listeners').Listener;
 var chanlisteners = new Listener();
 
-var fs = require("fs");
+
 
 var conf = {
   server : "irc.isolated.se",
-  channels : ["#martin"],
-  nick : "Martin"
+  channels : ["#botdev" /*, "#sogeti"*/],
+  nick : "hangman"
 };
 
 var bot = new irc.Client(conf.server, conf.nick, {
@@ -17,29 +17,11 @@ var bot = new irc.Client(conf.server, conf.nick, {
   channels : conf.channels
 });
 
-
-//init plugins
-fs.readdir(__dirname + '/plugins', function(err, f) {
-  if(err)
-    throw err;
-
-  f.forEach(function(file) {
-    if(file.indexOf(".js") < 0) return;
-    var plug = require(__dirname + "/plugins/" + file);
-    var listener = plug.listener();
-    
-    if(listener.listen.indexOf('chan') > -1) {
-      chanlisteners.addListener(listener);
-    }
-
-
-  });
-});
-
-
+chanlisteners.loadPlugins(null,null);
 chanlisteners.init(bot);
 
 bot.addListener("message", function(from, to, message) {
+  console.log(to);
   if( to.match(/^[#&]/)) {
     //Chan msg
     chanlisteners.checkListeners(from, to, message);
@@ -47,5 +29,6 @@ bot.addListener("message", function(from, to, message) {
     //Priv msg
   }
 });
+
 
 
