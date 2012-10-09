@@ -1,7 +1,6 @@
 *.log
-
 .idea/.name
-
 *.xml
-
 *.iml
+.idea/*
+resources/hangman/users.txt

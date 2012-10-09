@@ -1,0 +1,3 @@
+{"math": [{"question":"what is 1+1?", "answer":["4","four"], "type":"1"}],
+ "general": [{"question":"what color do you get when you mix yellow and blue?", "choice":["a) green","b) red","c) orange"], "type":"abc", "answer":"a"},{"question":"name three cities in belgium", "answer":["gent","antwerpen","brussel","brugge","chimay"], "type":"3"}],
+ "word": [{"question":"agiinnoprsttt", "answer":"trainspotting", "category":"words", "type":"*"}]}
