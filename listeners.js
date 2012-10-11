@@ -92,16 +92,6 @@ Listener.prototype.checkListeners =function(from, to, message) {
 
   var route = tochan ? routes[to] : routes['priv'];
 
-  //Exec route
-
-  route.forEach(function(r) {
-
-    if(message.match(r[0])) {
-
-      tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
-    }
-  });
-
   //Debug
   if(message.match(/\!chanlisteners/i)) {
     for(var i = 0, l = this.listeners.length; i < l; i++) {
@@ -113,6 +103,16 @@ Listener.prototype.checkListeners =function(from, to, message) {
 
     }
   }
+
+  //Exec route
+  if(!route) return;
+
+  route.forEach(function(r) {
+    if(message.match(r[0])) {
+
+      tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
+    }
+  });
 
 };
 
