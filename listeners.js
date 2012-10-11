@@ -95,8 +95,10 @@ Listener.prototype.checkListeners =function(from, to, message) {
   //Exec route
 
   route.forEach(function(r) {
+
     if(message.match(r[0])) {
-      r[1](bot, from, to, message);
+
+      tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
     }
   });
 
@@ -104,7 +106,11 @@ Listener.prototype.checkListeners =function(from, to, message) {
   if(message.match(/\!chanlisteners/i)) {
     for(var i = 0, l = this.listeners.length; i < l; i++) {
       var listener = this.listeners[i];
-      this.bot.say(to, i + ": " + listener.name + "::" +  listener.match);
+      for(var j = 0, jl = listener.length; j < jl; j++) {
+
+        this.bot.say(to, i + ": " + listener[j].name + "::" +  listener[j].match + "::" + listener[j].listen);
+      }
+
     }
   }
 
