@@ -21,10 +21,10 @@
    this.Players = {};
    this.ticks = 0;
    //Init rooms
-   /*
+   
    for(var room in this.Rooms) {
      this.Rooms[room] = new Grid(500);
-   }*/
+   }
  }
 
  //Expose singleton
@@ -61,12 +61,12 @@
        Db.getPlayerFile(name, function(err, d) {
          if(err) return;
 
-         console.log("Loading player: " + name);
+         
          var p = Character.fromJSON(d);
 
          that.Players[p.Name] = p;
        });
-       //Todo: hydrate objects from json
+       
      }
 
      that.tick();
