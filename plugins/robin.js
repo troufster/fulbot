@@ -251,6 +251,6 @@ exports.listeners = function() {
     name : "tinyrpg",
     match : /^\!rpg/i,
     func : rpgMain,
-    listen : ["#martin", "priv"]
+    listen : ["#rpg", "priv"]
   }];
 };

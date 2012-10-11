@@ -8,6 +8,6 @@ exports.listeners = function(){
           name : '!foodzor randomizer special',
               match : /\!Iunch/i,
                   func : sayFoodCT,
-                      listen : ["#botdev"]
+                      listen : ["#sogeti"]
                         }];
 };

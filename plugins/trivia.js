@@ -55,4 +55,4 @@ exports.unload = function(){
     var f = require.resolve("./trivia/trivia.js");
     require.cache[f].exports.unload();
     delete require.cache[f];
-}
+};

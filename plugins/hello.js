@@ -16,6 +16,6 @@ exports.listeners = function(){
     name : '!hello listener',
     match : /\!hello/i,
     func : sayHello,
-    listen : ["#botdev", "priv"]
+    listen : ["#sogeti", "priv"]
   }];
 };
