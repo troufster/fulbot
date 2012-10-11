@@ -1,12 +1,6 @@
 var irc = require("irc");
 var Listener = require("./listeners").Listener;
-
-//Todo: Move to conf.json
-var conf = {
-  server : "irc.isolated.se",
-  channels : ["#botdev", "#martin"],
-  nick : "Ulla2"
-};
+var conf = require("./conf");
 
 
 var bot = new irc.Client(conf.server, conf.nick, {
