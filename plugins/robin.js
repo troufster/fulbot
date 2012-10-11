@@ -246,11 +246,11 @@ function rpgMain(bot, from, to, message) {
 }
 
 
-exports.listener = function() {
-  return {
+exports.listeners = function() {
+  return [{
     name : "tinyrpg",
     match : /^\!rpg/i,
     func : rpgMain,
-    listen : ["chan", "priv"]
-  };
+    listen : ["#martin", "priv"]
+  }];
 };

@@ -43,12 +43,12 @@ exports.listeners = function(){return [{
     name : "trivia",
     match : /^\!trivia/i,
     func : trivia,
-    listen : ["chan"]
+    listen : ["#botdev"]
 }, {
     name : "trivia",
     match : /@/i,
     func : answer,
-    listen : ["chan"]
+    listen : ["#botdev"]
 }]};
 
 exports.unload = function(){

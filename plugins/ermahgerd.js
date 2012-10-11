@@ -144,12 +144,12 @@ function sayHello(bot, from, to, message) {
   bot.say(to, translatedWords.join(' '));
 }
 
-exports.listener = function(){
-  return {
+exports.listeners = function(){
+  return [{
     name : '!hello listener',
     match : /\!ermahgerd/i,
     func : sayHello,
-    listen : ["chan"]
-  }
+    listen : ["#botdev", "priv"]
+  }];
 };
  

@@ -399,11 +399,12 @@ exports.listeners = function (){ return [{
 	  name : "hangmanPlay",
       match : /[a-zåöä]+/i,
       func : hangMan,
-      listen : ["chan"]
+      listen : ["#botdev"]
 	}, {
       name : "hangmanConfig",
       match : /^\!hangman/i,
       func : hangmanConfig,
-      listen : ["chan"]
+      listen : ["#botdev"]
 	}]};
+
 init();

@@ -120,11 +120,11 @@ function quoteMain(bot, from, to, message) {
 }
 
 
-exports.listener = function() {
-  return {
+exports.listeners = function() {
+  return [{
     name : "Quotebot",
       match : /^\!quote/i,
       func : quoteMain,
-      listen : ["chan"]
-  };
+      listen : ["#botdev"]
+  }];
 };
