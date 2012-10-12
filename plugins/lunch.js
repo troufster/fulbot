@@ -19,7 +19,6 @@ exports.listeners = function(){
     return [{
           name : '!foodzor randomizer',
           match : /\!lunch/i,
-          func : sayFood,
-          listen : ["#sogeti", "priv"]
+          func : sayFood
       }];
 };

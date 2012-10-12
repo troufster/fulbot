@@ -9,7 +9,7 @@ return !isNaN(parseFloat(n) && isFinite(n));
 
 function myChanUsers() {
 	//Todo: centralize constants
-	return _bot.chans['#martin'].users;
+	return _bot.chans['#rpg'].users;
 }
 
 function nameUserMatch() {

@@ -1,6 +1,7 @@
 var util = require('util');
 var fs = require("fs");
 var Utils = require('./utils').Utils;
+var conf = require('./conf');
 
 function Listener(bot) {
   this.listeners = [];
@@ -39,8 +40,11 @@ Listener.prototype.mapRoutes = function(_cb) {
     for(var j = 0, lj = listeners.length; j<lj; j++) {
       var lis = listeners[j];
 
-      for(var k = 0, lk = lis.listen.length; k<lk  ; k++) {
-        var route = lis.listen[k];
+      var conflis = conf.pluglisten[lis.name];
+      if(!conflis) continue;
+
+      for(var k = 0, lk = conflis.length; k<lk  ; k++) {
+        var route = conflis[k];
 
         if(!this.routes[route]){
           this.routes[route] = [];

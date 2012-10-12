@@ -15,7 +15,6 @@ exports.listeners = function(){
   return [{
     name : '!hello listener',
     match : /\!hello/i,
-    func : sayHello,
-    listen : ["#sogeti", "priv"]
+    func : sayHello
   }];
 };
