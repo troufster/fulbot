@@ -20,6 +20,7 @@ function Listener(bot) {
 
       //Register main listener
       bot.addListener("message", function(from, to, message) {
+        console.log("OMG");
         that.checkListeners(from, to, message);
       });
 
@@ -94,8 +95,10 @@ Listener.prototype.checkListeners =function(from, to, message) {
 
   //Debug
   if(message.match(/\!chanlisteners/i)) {
+
     for(var i = 0, l = this.listeners.length; i < l; i++) {
       var listener = this.listeners[i];
+
       for(var j = 0, jl = listener.length; j < jl; j++) {
 
         this.bot.say(to, i + ": " + listener[j].name + "::" +  listener[j].match + "::" + listener[j].listen);
