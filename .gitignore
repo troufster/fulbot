@@ -10,3 +10,6 @@ resources/hangman/users.txt
 
 conf.js
 hax.js
+
+resources/tinyrpg/*.player
+resources/*
