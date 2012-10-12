@@ -1,9 +1,11 @@
-var assert = require("assert")
-describe('Array', function(){
-  describe('#indexOf()', function(){
-    it('should return -1 when the value is not present', function(){
-      assert.equal(-1, [1,2,3].indexOf(5));
-      assert.equal(-1, [1,2,3].indexOf(0));
-    })
-  })
-})
+var Listener = require('../listeners').Listener;
+var Emitter = require('events').EventEmitter;
+
+
+exports.instanciate = function(test){
+  var e = new Emitter();
+  var l = new Listener(e);
+
+  test.ok(l != null, "should pass");
+  test.done();
+};
