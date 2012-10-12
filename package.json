@@ -1,0 +1,23 @@
+{
+    "name" : "fulbot",
+    "version" : "0.2.2",
+    "description" : "A simple but extensible irc bot foundation",
+
+    "scripts" : {
+        "start" : "node app.js",
+        "test" : "nodeunit test/*"
+    },
+
+    "dependencies" : {
+        "irc" : "0.3.x"
+    },
+
+    "devDependencies" : {
+        "nodeunit"  : "0.7.x"
+    },
+
+    "engines" : {
+        "node" : ">=0.8"
+    }
+
+}
