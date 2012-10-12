@@ -50,7 +50,7 @@ Listener.prototype.mapRoutes = function(_cb) {
           this.routes[route] = [];
         }
 
-        this.routes[route].push([lis.match, lis.func]);
+        this.routes[route].push([lis.match, lis.func, lis.name]);
       }
     }
   }
@@ -98,16 +98,16 @@ Listener.prototype.checkListeners =function(from, to, message) {
   var route = tochan ? routes[to] : routes['priv'];
 
   //Debug
-  if(message.match(/\!chanlisteners/i)) {
+  if(message.match(/^\!showroutes/i)) {
+    var c = Object.keys(routes);
 
-    for(var i = 0, l = this.listeners.length; i < l; i++) {
-      var listener = this.listeners[i];
+    for(var i = 0, l = c.length; i < l; i++) {
+      bot.say(to, c[i]);
+      var r = routes[c[i]];
 
-      for(var j = 0, jl = listener.length; j < jl; j++) {
-
-        this.bot.say(to, i + ": " + listener[j].name + "::" +  listener[j].match + "::" + listener[j].listen);
+      for(var j = 0, jl = r.length; j < jl; j++) {
+        bot.say(to, "->" + r[j][0] + "::" + r[j][2]);
       }
-
     }
   }
 

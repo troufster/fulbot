@@ -72,30 +72,5 @@ exports.execPrivRoutes= function(test) {
   l.checkListeners("Rolf", "Smegma", "!hello");
 };
 
-exports.execChanListeners=function(test) {
 
-  var b = new BotMock();
-
-  b.say = function(to, msg) {
-    test.ok(msg.indexOf("!hello") > -1);
-    test.done();
-  };
-
-  var l = new Listener(b);
-
-  //Add some mockymox
-  l.listeners =[[{
-    name : '!hello listener',
-    match : /\!hello/i,
-    func : function() {},
-    listen : ["#somechan", "priv"]
-  }]];
-
-
-  l.routes = { "#somechan" : [], "priv" : []};
-
-  //Inject a mocky route
-  l.checkListeners("Rolf", "#somechan", "!chanlisteners");
-
-};
 
