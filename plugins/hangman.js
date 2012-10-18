@@ -398,11 +398,13 @@ function hangmanConfig(bot, from, to, message) {
 exports.listeners = function (){ return [{
 	  name : "hangmanPlay",
       match : /[a-zåöä]+/i,
-      func : hangMan
+      func : hangMan,
+      listen : ["#games"]
 	}, {
       name : "hangmanConfig",
       match : /^\!hangman/i,
-      func : hangmanConfig
+      func : hangmanConfig,
+      listen : ["#games"]
 	}]};
 
 init();

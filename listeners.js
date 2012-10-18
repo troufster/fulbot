@@ -20,10 +20,9 @@ function Listener(bot) {
     that.mapRoutes(function(err, _cb) {
 
       //Register main listener
-      bot.addListener("message", function(from, to, message) {
-        that.checkListeners(from, to, message);
+      bot.addListener("message", function(from, to, message, raw) {
+        that.checkListeners(from, to, message, raw);
       });
-
     });
   });
 
@@ -88,7 +87,7 @@ Listener.prototype.loadPlugins  = function(_cb) {
   });
 };
 
-Listener.prototype.checkListeners =function(from, to, message) {
+Listener.prototype.checkListeners =function(from, to, message, raw) {
 
   var routes = this.routes;
   var bot = this.bot;
@@ -115,8 +114,7 @@ Listener.prototype.checkListeners =function(from, to, message) {
 
   route.forEach(function(r) {
     if(message.match(r[0])) {
-
-      tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
+        tochan ? r[1](bot, from, to, message, raw) : r[1](bot, to, from, message, raw);
     }
   });
 

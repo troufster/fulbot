@@ -6,13 +6,11 @@ var tt = null;
 
 function answer(bot, from, to, message){
     if (tt == null || !tt.running) {
-        bot.say(to, "no game started yet");
         return;
     }
     tt.giveAnswer(from, message.replace('@',''));
 
 }
-
 
 function trivia(bot, from, to, message){
 
@@ -32,6 +30,11 @@ function trivia(bot, from, to, message){
             else
                 tt.newRound();
             break;
+        case "pass":
+            if (tt.running) tt.pass(from);
+            break;
+        case "scores":
+            //tt.printTotalScores();
         case "add":
             break;
     }
@@ -43,16 +46,10 @@ exports.listeners = function(){return [{
     name : "trivia",
     match : /^\!trivia/i,
     func : trivia,
-    listen : ["#botdev"]
+    listen : ["#bruce"]
 }, {
     name : "trivia",
-    match : /@/i,
+    match : /[^!].*/,
     func : answer,
-    listen : ["#botdev"]
+    listen : ["#bruce"]
 }]};
-
-exports.unload = function(){
-    var f = require.resolve("./trivia/trivia.js");
-    require.cache[f].exports.unload();
-    delete require.cache[f];
-};
