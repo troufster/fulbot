@@ -21,7 +21,6 @@ function Listener(bot) {
 
       //Register main listener
       bot.addListener("message", function(from, to, message) {
-        console.log("OMG");
         that.checkListeners(from, to, message);
       });
 
