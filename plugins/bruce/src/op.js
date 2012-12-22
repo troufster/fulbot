@@ -1,9 +1,12 @@
+//var util = require('util');
 var utils = require ('./../../../utils.js').Utils;
 
-function Identity(identity, pass){
-    this.ident = identity;
+function Identity(nick, handle, pass){
+    this.handle = handle;
     this.pass = pass;
+    this.nick = nick;
     this.hosts = [];
+    this.validated = false;
 }
 
 function Op(bot){
@@ -13,30 +16,37 @@ function Op(bot){
     this.utils.init(this.bot);
 
     this.ops   = [];
+    this.voice = [];
     this.deops = [];
     this.identities = [];
 
     var that = this;
     this.bot.addListener("join", function(channel, user, message) {
         if (that.ops[channel] && that.ops[channel].indexOf(user) > -1){
-            that.op(channel, that.bot.opt.nick, user, message );
+            that.op(channel, that.bot.opt.nick, user, message);
         }
     });
     this.bot.addListener("+mode", function(from, nick, mode, user, message) {
-        that.checkSetOp(from, nick, mode, user, message);
+        that.checkOp(from, nick, mode, user, message);
     });
     this.bot.addListener("-mode", function(from, nick, mode, user, message) {
-        that.checkRemoveOp(from, nick, mode, user, message);
+            that.checkRemoveOp(from, nick, mode, user, message);
     });
 }
 
-Op.prototype.op= function(channel,from, user, message){
-    if (this.utils.isUserOperator(channel,from)){
-        this.bot.send("MODE " + channel + " +o " + user );
-    } else {
-        this.bot.say("Oy! You no op, boy!");
-    }
+Op.prototype.op= function(channel, from, newOp, message){
+    var identity = this.validateUser(message);
 
+    if (identity == null) return;
+
+    if (this.utils.isUserOperator(channel,this.bot.nick) && this.utils.isUserOperator(channel, from)){
+        this.addOp(channel, newOp);
+        if (this.utils.isUserOnChannel(channel, newOp)) {
+            this.bot.send("MODE " + channel + " +o " +  newOp);
+        }
+    } else {
+        this.bot.say(from, "Oy! You no op, boy!");
+    }
 }
 
 
@@ -44,11 +54,11 @@ Op.prototype.checkRemoveOp = function(from, nick, mode, user, message){
 
 }
 
-Op.prototype.checkSetOp = function(from, nick, mode, user, message){
+Op.prototype.checkOp = function(from, nick, mode, user, message){
 
 }
 
-Op.prototype.addOp = function(channel, user, message, raw){
+Op.prototype.addOp = function(channel, user){
     if(!this.ops[channel]){
         this.ops[channel] = [];
     }
@@ -57,16 +67,18 @@ Op.prototype.addOp = function(channel, user, message, raw){
         this.deops[channel] = [];
     }
 
+    var that = this
+    this.bot.whois(user,function(data){
+        var prefix = data.user + "@" + data.host;
 
-    if(this.ops[channel].indexOf(user) == -1 && this.deops[channel].indexOf(user) ==-1 ){
-        this.ops[channel].push(user);
-    }
-
-    this.setOp(channel, user, raw)
+        if(that.ops[channel].indexOf(prefix) == -1 && that.deops[channel].indexOf(prefix) == -1 ){
+            that.ops[channel].push(prefix);
+        }
+    })
 
 };
 
-Op.prototype.deop = function(channel, user, hostmask){
+Op.prototype.deop = function(channel, user){
     if(!this.deops[channel]){
         this.deops[channel] = [];
     }
@@ -75,47 +87,58 @@ Op.prototype.deop = function(channel, user, hostmask){
         this.ops[channel] = [];
     }
 
-    if(this.deops[channel].indexOf(hostmask) == -1 && this.ops[channel].indexOf(hostmask) == -1 ){
-        this.deops[channel].push(hostmask);
-    }
+    var that = this
+    this.bot.whois(user,function(data){
+        var prefix = data.user + "@" + data.host;
+
+        if(that.deops[channel].indexOf(prefix) == -1 && that.ops[channel].indexOf(prefix) == -1 ){
+            that.deops[channel].push(prefix);
+        }
+    })
 }
 
 Op.prototype.ident = function (to, handle, pass, raw) {
 
     var valid = this.identities.some(function(identity) {
-        return identity.ident == handle && identity.pass == pass;
+        return identity.handle == handle && identity.pass == pass;
     });
 
 
     if (valid){
-        var identity = this.identities.some(function(identity) {
-            if (identity.ident == handle && identity.pass == pass)
-                return identity;
-        });
+        var identity = null;
 
-        if (identity.hosts.indexOf(raw.prefix) == -1){
-            identity.hosts.push(raw.prefix);
+        for(var i = this.identities.length-1;i >= 0; i--){
+            if (this.identities[i].handle == handle && this.identities[i].pass == pass){
+                identity = this.identities[i];
+                i = -1; //break;
+            }
         }
-        this.bot.say(to, "Hi");
+
+
+        if (identity.hosts.indexOf(raw.user + "@" + raw.host) == -1){
+            identity.hosts.push(raw.user + "@" + raw.host);
+        }
+
+        identity.nick = raw.nick;
+        this.bot.say(to, "Hi " + identity.nick);
         return true;
     }
 
     var identity = this.identities.some(function(identity) {
-        if (identity.ident == handle)
-            return identity;
+        return (identity.handle == handle)
     });
 
     if (!identity) {
 
         var exists = this.identities.some(function(identity) {
             return identity.hosts.some(function(host){
-                return host == raw.prefix;
+                return host == raw.user + "@" + raw.host;
             })
         });
 
         if (!exists) {
-            var identity = new Identity(handle, pass);
-            identity.hosts.push(raw.prefix);
+            var identity = new Identity(raw.nick, handle, pass);
+            identity.hosts.push(raw.user + "@" + raw.host);
             this.identities.push(identity);
 
             this.bot.say(to, "Your handle is now registered.")
@@ -125,14 +148,39 @@ Op.prototype.ident = function (to, handle, pass, raw) {
         this.bot.say(to, "you're already registered under a different handle");
         return false;
     }
-    this.bot.say(to, "Y U NO VALID HANDLE/PASS!!!");
+    this.bot.say(to, "Y U NO IDENT CORRECTLY!!!");
     return false;
 }
 
 Op.prototype.hello = function(to, raw){
 
-    this.bot.say(to,"hmmm, I see what you did there..");
+    var identity = this.validateUser(raw);
 
+    if (identity){
+        this.bot.say(to,"hmmm, I see what you did there..");
+    }
+}
+
+Op.prototype.validateUser = function(raw){
+
+    var identity = this.identities.some(function(id){
+        if (id.hosts.some(function(host){
+            return host == raw.user + "@" + raw.host})){
+            return id;
+        }
+    });
+
+    if (identity)
+        return identity;
+
+    this.bot.say(raw.nick, "WHY THE FUCK DON'T YOU IDENT FIRST!");
+    return null;
+}
+
+Op.prototype.operators = function(channel, to){
+
+    if (this.ops[channel] !== undefined)
+        this.bot.say(to, util.format("Following hostmasks are op: %s", this.ops[channel].join(' ')));
 }
 
 module.exports = Op;
