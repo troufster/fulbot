@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 var http = require('http'),
 fs = require('fs'),
 util = require('util'),
@@ -197,3 +198,12 @@ exports.listeners = function(){
         listen : ["#sogeti", "priv"]
     }];
 };
+=======
+/**
+ * Created with JetBrains WebStorm.
+ * User: jthart
+ * Date: 2012-12-19
+ * Time: 22:20
+ * To change this template use File | Settings | File Templates.
+ */
+>>>>>>> continue working on bruce
