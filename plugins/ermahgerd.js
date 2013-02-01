@@ -149,7 +149,7 @@ exports.listeners = function(){
     name : '!hello listener',
     match : /\!ermahgerd/i,
     func : sayHello,
-    listen : ["#botdev", "priv"]
+    listen : ["#sogeti", "#botdev", "priv"]
   }];
 };
  
