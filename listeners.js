@@ -89,6 +89,8 @@ Listener.prototype.loadPlugins  = function(_cb) {
 
 Listener.prototype.checkListeners =function(from, to, message, raw) {
 
+  if(!this.utils.canSpeak(to)) return;;
+
   var routes = this.routes;
   var bot = this.bot;
   var tochan = Utils.isChanMessage(to);

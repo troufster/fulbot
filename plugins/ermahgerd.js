@@ -146,9 +146,10 @@ function sayHello(bot, from, to, message) {
 
 exports.listeners = function(){
   return [{
-    name : '!ermahgerd',
+    name : '!hello listener',
     match : /^\!ermahgerd/i,
-    func : sayHello
+    func : sayHello,
+    listen : ["#sogeti", "#botdev", "priv"]
   }];
 };
  

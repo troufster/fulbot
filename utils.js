@@ -54,4 +54,17 @@ Utils.prototype.xmlToJson =
         return obj;
     };
 
+Utils.prototype.canSpeak = function(channel) {
+  
+  //Assume we can speak to users
+  if(!Utils.isChanMessage(channel)) return true;
+
+  var isChanModerated = this.bot.chans[channel].mode.indexOf('m') > -1;
+  var haveVoice = this.bot.chans[channel].users[this.bot.nick].indexOf('+') > -1;
+
+  return !isChanModerated || haveVoice;
+};
+
+
+
 exports.Utils = Utils;
