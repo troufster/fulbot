@@ -1,23 +1,23 @@
 var http = require('http'),
 fs = require('fs'),
 url = require('url'),
-util = require('util');
+util = require('util'),
+Admin = require("./buertz/buertzAdmin.js");
 
-var buertzList = "./resources/buertz/buertz.xml";
 
-var buertzXml;
+var admin = null;
 
-function loadBuertz(){
-
-fs.readFile(buertzList, function(err, fd) {
-if(err) return;
-    var rows = fd.toString().split("\n");
-    rows = rows.slice(0, rows.length-1);
-    var rand = Math.floor(Math.random() * rows.length);
-    cb(null, "Quote #" + rand + ": " + rows[rand]);
-});
-
+-function loadBuertz(){
+    fs.readFile(buertzList, function(err, fd) {
+        if(err) return;
+        var rows = fd.toString().split("\n");
+        rows = rows.slice(0, rows.length-1);
+        var rand = Math.floor(Math.random() * rows.length);
+        cb(null, "Quote #" + rand + ": " + rows[rand]);
+    });
 }
+
+
 
 function randomBuertz() {
 
@@ -79,7 +79,11 @@ function sayBeer (bot, from, to, message)
     switch(command) {
 
         case "refresh":
-            loadBuertz();
+            if (admin ==null){
+                admin = new Admin();
+            }
+
+            admin.refresh();
             break;
         default :
             randomBuertz();
