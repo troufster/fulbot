@@ -1,92 +1,146 @@
 var http = require('http'),
 fs = require('fs'),
-url = require('url'),
 util = require('util'),
 Admin = require("./buertz/buertzAdmin.js");
 
+var buertzList = "./resources/buertz/Öl.txt";
 
 var admin = null;
+var buertzors = [];
 
--function loadBuertz(){
-    fs.readFile(buertzList, function(err, fd) {
-        if(err) return;
-        var rows = fd.toString().split("\n");
-        rows = rows.slice(0, rows.length-1);
-        var rand = Math.floor(Math.random() * rows.length);
-        cb(null, "Quote #" + rand + ": " + rows[rand]);
+
+function randomBuertz(cb, filter) {
+    if (buertzors.length == 0){
+        init(cb);
+        cb(null, 'inga buertz än, vänta nån sekund...')
+        return;
+    }
+    var useFilter = false;
+    var filtered = [];
+    if (filter !== undefined){
+        filtered = buertzors.filter(
+            function (element) {
+                return (parseFloat(element.Alkoholhalt[0].replace('%')) >= filter);
+            }
+        );
+        useFilter = true;
+    }
+
+    var data = "";
+    for (var i = 0; i < 5; i++) {
+
+        var buertz = null;
+        if (useFilter && filtered.length != 0){
+            buertz = filtered[Math.floor(Math.random() * filtered.length)];
+        }
+        else {
+            buertz = buertzors[Math.floor(Math.random() * buertzors.length)];
+        }
+        data += buertz.Namn + ' ' + (typeof buertz.Namn2[0] === "string" ? buertz.Namn2[0] : '')  +  ' , ' + buertz.Alkoholhalt + ' , SEK ' + buertz.Prisinklmoms[0].substr(0,buertz.Prisinklmoms[0].length -1) + ' (' + buertz.Volymiml + 'ml) \n';
+    }
+    cb(null,data)
+}
+
+function refresh(cb){
+    if (admin == null){
+        admin = new Admin();
+
+        admin.emitter.on('refreshed',function(){
+            load(cb);
+
+        });
+    }
+
+    admin.refresh(cb);
+
+}
+
+function load(cb){
+    fs.readFile(buertzList, function (err, data) {
+        if (err) throw err;
+        buertzors = JSON.parse(data);
+        cb(null,'nu finns det buertz')
     });
 }
 
-
-
-function randomBuertz() {
-
-
-    var number = 0;
-//if (number < 10) {
-
-    var artikellista = $(buertzXml).find("artiklar");
-//find every Tutorial and print the author
-    var artiklar = artikellista.find("artikel");
-
-    var beerlist = new Array();
-    var randomBeers = new Array();
-
-    var text = "";
-    for (var i = 0; i < artiklar.length; i++) {
-        var children = artiklar[i].childNodes;
-        var varugrupp = children[10];
-
-
-        if (varugrupp.textContent.indexOf("Öl") != -1 || varugrupp.textContent.indexOf("öl") != -1 ) {
-            beerlist.push(artiklar[i]);
+function init(cb){
+    fs.exists(buertzList, function (exists) {
+        if(exists){
+            load(cb);
         }
-
-    }
-    var randomnumber1 = Math.floor(Math.random() * beerlist.length+1)
-    var randomnumber2 = Math.floor(Math.random() * beerlist.length+1)
-    var randomnumber3 = Math.floor(Math.random() * beerlist.length+1)
-    var randomnumber4 = Math.floor(Math.random() * beerlist.length+1)
-    var randomnumber5 = Math.floor(Math.random() * beerlist.length+1)
-
-    randomBeers.push(beerlist[randomnumber1]);
-    randomBeers.push(beerlist[randomnumber2]);
-    randomBeers.push(beerlist[randomnumber3]);
-    randomBeers.push(beerlist[randomnumber4]);
-    randomBeers.push(beerlist[randomnumber5]);
-    var text = "";
-    for (var i = 0; i < randomBeers.length; i++) {
-
-
-        var randomChilds = randomBeers[i].childNodes;
-        var nameItem = randomChilds[3].textContent + " " + randomChilds[4].textContent;
-
-        text = text + nameItem + "<br/>";
-    }
-
-    $(".output").append(text);
-
-
+        else {
+            refresh(cb);
+        }
+    });
 }
 
+function info(cb,name){
+    if (buertzors.length == 0){
+        init(cb);
+        cb(null, 'inga buertz än, vänta nån sekund...')
+        return;
+    }
+
+    var buertz =  buertzors.filter(
+        function (element) {
+            return (element.Namn == name);
+        }
+    );
+
+    if (buertz.length > 0) {
+        var data = "";
+        for (var i = buertz.length -1; i>=0;i--) {
+            if (data != "" ) data += "\n";
+            data += buertz[i].Namn + ' ' + (typeof buertz[i].Namn2[0] === "string" ? buertz[i].Namn2[0] : '')  ;
+            data += '\n  Alkohol halt: ' + buertz[i].Alkoholhalt ;
+            data += '\n  Typ         : ' + buertz[i].Varugrupp[0].substr(4);
+            data += '\n  Pris        : ' + buertz[i].Prisinklmoms[0].substr(0,buertz[i].Prisinklmoms[0].length -1);
+            data += '\n  nr          : ' + buertz[i].Varnummer;
+            data += '\n  Förpackning : ' + buertz[i].Volymiml + 'ml ' + buertz[i].Forpackning;
+            data += '\n  Producent   : ' + buertz[i].Producent;
+            data += '\n  Leverantör  : ' + buertz[i].Leverantor;
+            data += '\n  Sälj start  : ' + buertz[i].Saljstart;
+        }
+        cb(null,data);
+    }
+}
 
 function sayBeer (bot, from, to, message)
 {
     var parts = message.split(" ");
     var command = parts[1];
-    var rest = parts[2];
+    var rest = parts.slice(2,parts.length).join(" ");
+
+    var callback = function(err, d) {
+        if(err)return;
+        bot.say(to, d);
+    };
 
     switch(command) {
 
         case "refresh":
-            if (admin ==null){
-                admin = new Admin();
-            }
-
-            admin.refresh();
+            refresh(callback);
+            break;
+        case "info":
+            info(function(err, d) {
+                if(err)return;
+                bot.say(from, d);
+            }, rest);
+            break;
+        case "help":
+            callback(null,'!BUERTZ!');
+            callback(null,'utan command slumpas 5 öl, ange en siffra för alkohol halten som skall överstigas...');
+            callback(null,'BUERTZ commands: ');
+            callback(null,'   refresh: Hämtar ny lista för tornby från systemets hemsida. ');
+            callback(null,'   info [namn]: Ger extra info om ölet. [namn] = namnet.');
+            callback(null,'                Systemet hanterar dock 2 fält, så får man ingen träff på:');
+            callback(null,'                   !buertz info Paulaner Münchener Hell');
+            callback(null,'                borde man söka på: ');
+            callback(null,'                   !buertz info Paulaner');
+            callback(null,'!BUERTZ!');
             break;
         default :
-            randomBuertz();
+            randomBuertz(callback, command);
             break;
     }
 
@@ -94,8 +148,9 @@ function sayBeer (bot, from, to, message)
 
 exports.listeners = function(){
     return [{
-        name : 'Buertz randomizer',
+        name : 'Buertz',
         match : /^\!buertz/i,
-        func : sayBeer
+        func : sayBeer,
+        listen : ["#botdev", "priv"]
     }];
 };
