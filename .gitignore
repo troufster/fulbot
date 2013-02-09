@@ -6,3 +6,4 @@
 resources/hangman/users.txt
 
 *.player
+resources/*
