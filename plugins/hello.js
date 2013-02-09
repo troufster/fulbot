@@ -12,10 +12,10 @@ function sayHello(bot, from, to, message) {
 }
 
 exports.listeners = function(){
-  return [{
-    name : '!hello listener',
-    match : /\!hello/i,
-    func : sayHello,
-    listen : ["#sogeti", "priv"]
-  }];
+    return [{
+        name : '!hello listener',
+        match : /\!hello/i,
+        func : sayHello,
+        listen : ["#sogeti", "priv"]
+    }];
 };

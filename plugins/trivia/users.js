@@ -1,18 +1,47 @@
 var util = require('util');
 var fs = require("fs");
-var userlist = "./resources/trivia/triviausers.txt";
+var userList = "./resources/trivia/triviausers.txt";
 
 function read(file){
-    fs.exists(file  , function (exists) {
-        if (exists) {
-            return JSON.parse(fs.readFileSync(file));
-        }
+    if (fs.existsSync(file) ) {
+        return JSON.parse(fs.readFileSync(file));
+    }
         return {};
+}
+
+function write(file, j){
+    fs.open(file, 'w', 0666, function(err, fd) {
+        if(err) return;
+        fs.write(fd,  JSON.stringify(j), null, undefined, function(err, written) {
+        });
     });
 }
 
 function Users(){
-    this.users = read(userlist );
+    this.users = read(userList );
+}
+
+Users.prototype.save = function(){
+    write(userList, this.users);
+}
+
+Users.prototype.getUser = function(n){
+    if (this.users[n] === undefined){
+        return this.newUser(n);
+    }
+    return this.users[n];
+}
+
+Users.prototype.newUser = function(n){
+    var user = {
+        name:n,
+        rounds:0, //rounds played
+        total:0,  //total score
+        score:0   //current rounds score
+    };
+
+    this.users[n] = user;
+    return user;
 }
 
 
