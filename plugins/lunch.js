@@ -17,8 +17,9 @@ function sayFood(bot, from, to, message) {
 
 exports.listeners = function(){
     return [{
-          name : '!foodzor randomizer',
-          match : /\!lunch/i,
-          func : sayFood
-      }];
+        name : '!foodzor randomizer',
+        match : /\!lunch/i,
+        func : sayFood,
+        listen : ["#sogeti", "priv"]
+    }];
 };

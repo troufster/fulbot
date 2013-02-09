@@ -1,30 +1,30 @@
 var util = require('util');
 var fs = require("fs");
 var Utils = require('./utils').Utils;
-var conf = require('./conf');
 
 function Listener(bot) {
-  this.listeners = [];
-  this.utils =  new Utils();
+    this.listeners = [];
+    this.utils =  new Utils();
 
-  this.bot = bot;
-  this.utils.init(bot);
-  this.routes= {};
+    this.bot = bot;
+    this.utils.init(bot);
+    this.routes= {};
 
-  var that = this;
+    var that = this;
 
-  //Load plugins
-  this.loadPlugins(function(err) {
+    //Load plugins
+    this.loadPlugins(function(err) {
 
-    //Map plugin routes
-    that.mapRoutes(function(err, _cb) {
+        //Map plugin routes
+        that.mapRoutes(function(err, _cb) {
 
-      //Register main listener
-      bot.addListener("message", function(from, to, message, raw) {
-        that.checkListeners(from, to, message, raw);
-      });
+            //Register main listener
+            bot.addListener("message", function(from, to, message) {
+                that.checkListeners(from, to, message);
+            });
+
+        });
     });
-  });
 
 }
 
@@ -32,95 +32,90 @@ function Listener(bot) {
 
 Listener.prototype.mapRoutes = function(_cb) {
 
-  for(var i = 0, l = this.listeners.length; i < l; i++) {
-    var listeners = this.listeners[i];
+    for(var i = 0, l = this.listeners.length; i < l; i++) {
+        var listeners = this.listeners[i];
 
-    for(var j = 0, lj = listeners.length; j<lj; j++) {
-      var lis = listeners[j];
+        for(var j = 0, lj = listeners.length; j<lj; j++) {
+            var lis = listeners[j];
 
-      var conflis = conf.pluglisten[lis.name];
-      if(!conflis) continue;
+            for(var k = 0, lk = lis.listen.length; k<lk  ; k++) {
+                var route = lis.listen[k];
 
-      for(var k = 0, lk = conflis.length; k<lk  ; k++) {
-        var route = conflis[k];
+                if(!this.routes[route]){
+                    this.routes[route] = [];
+                }
 
-        if(!this.routes[route]){
-          this.routes[route] = [];
-        }
-
-        this.routes[route].push([lis.match, lis.func, lis.name]);
-      }
-    }
-  }
-
-  _cb(null);
-};
-
-Listener.prototype.addListener = function(l) {
-  this.listeners.push(l);
-};
-
-Listener.prototype.loadPlugins  = function(_cb) {
-  var that = this;
-
-  fs.readdir('./plugins', function(err, f) {
-    if(err) throw err;
-
-      for(var i = 0, l = f.length; i < l; i++) {
-        var file = f[i];
-
-        if(file.indexOf(".js") < 0) {
-          continue;
-        }
-
-        var plugName = __dirname.replace(/\\/g,'/' ) + "/plugins/" + file;
-
-        var plug = require(plugName);
-
-        if(plug.listeners) {
-          that.addListener(plug.listeners());
+                this.routes[route].push([lis.match, lis.func]);
+            }
         }
     }
 
     _cb(null);
-
-  });
 };
 
-Listener.prototype.checkListeners =function(from, to, message, raw) {
+Listener.prototype.addListener = function(l) {
+    this.listeners.push(l);
+};
 
-  if(!this.utils.canSpeak(to)) return;;
+Listener.prototype.loadPlugins  = function(_cb) {
+    var that = this;
 
-  var routes = this.routes;
-  var bot = this.bot;
-  var tochan = Utils.isChanMessage(to);
+    fs.readdir('./plugins', function(err, f) {
+        if(err) throw err;
 
-  var route = tochan ? routes[to] : routes['priv'];
+        for(var i = 0, l = f.length; i < l; i++) {
+            var file = f[i];
 
-  //Debug
-  if(message.match(/^\!showroutes/i)) {
-    var c = Object.keys(routes);
+            if(file.indexOf(".js") < 0) {
+                continue;
+            }
 
-    for(var i = 0, l = c.length; i < l; i++) {
-      bot.say(to, c[i]);
-      var r = routes[c[i]];
+            var plugName = __dirname.replace(/\\/g,'/' ) + "/plugins/" + file;
 
-      for(var j = 0, jl = r.length; j < jl; j++) {
-        bot.say(to, "->" + r[j][0] + "::" + r[j][2]);
-      }
+            var plug = require(plugName);
+
+            if(plug.listeners) {
+                that.addListener(plug.listeners());
+            }
+        }
+
+        _cb(null);
+
+    });
+};
+
+Listener.prototype.checkListeners =function(from, to, message) {
+
+    if(!this.utils.canSpeak(to)) return;;
+
+    var routes = this.routes;
+    var bot = this.bot;
+    var tochan = Utils.isChanMessage(to);
+
+    var route = tochan ? routes[to] : routes['priv'];
+
+    //Debug
+    if(message.match(/\!chanlisteners/i)) {
+        for(var i = 0, l = this.listeners.length; i < l; i++) {
+            var listener = this.listeners[i];
+            for(var j = 0, jl = listener.length; j < jl; j++) {
+
+                this.bot.say(to, i + ": " + listener[j].name + "::" +  listener[j].match + "::" + listener[j].listen);
+            }
+
+        }
     }
-  }
 
-  //Exec route
-  if(!route) return;
+    //Exec route
+    if(!route) return;
 
-  route.forEach(function(r) {
-    if(message.match(r[0])) {
-        tochan ? r[1](bot, from, to, message, raw) : r[1](bot, to, from, message, raw);
-    }
-  });
+    route.forEach(function(r) {
+        if(message.match(r[0])) {
+
+            tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
+        }
+    });
 
 };
 
 exports.Listener = Listener;
-
