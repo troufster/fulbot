@@ -3,13 +3,7 @@
 *.xml
 *.iml
 .idea/*
-resources/hangman/users.txt
-
 *.player
-
-
 conf.js
 hax.js
-
-resources/tinyrpg/*.player
 resources/*
