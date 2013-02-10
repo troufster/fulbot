@@ -151,6 +151,6 @@ exports.listeners = function(){
         name : 'Buertz',
         match : /^\!buertz/i,
         func : sayBeer,
-        listen : ["#botdev", "priv"]
+        listen : ["#sogeti", "priv"]
     }];
 };
