@@ -26,15 +26,21 @@ function Admin(){
     this.writeFile = function(name, data, cb){
         var filename = buertzList + name + '.txt';
         var that = this;
-        fs.open(filename, 'w', 0666, function(err, fd) {
-            if(err) return;
+
+        fs.exists(buertzList, function(exists){
+          if (!exists) {
+            fs.mkdir(buertzList);
+          }
+          fs.open(filename, 'w', 0666, function(err, fd) {
+            if(err){console.dir(err); throw err;}
 
             fs.write(fd,  data, null, undefined, function(err, written) {
-                fs.close(fd, function(){
-                    cb(null, name + ' saved, ' + written + ' bytes written');
-                    that.on({ Type: 'refreshed', Message : '' });
-                });
+              fs.close(fd, function(){
+                cb(null, name + ' saved, ' + written + ' bytes written');
+                that.on({ Type: 'refreshed', Message : '' });
+              });
             });
+          });
         });
     };
 
@@ -90,6 +96,11 @@ Admin.prototype.refresh = function(cb){
     }).on('error', function(e) {
         cb(null, "Got error: " + e.message);
     });
+}
+
+Admin.prototype.prepHangman = function(cb){
+
+
 }
 
 module.exports = Admin;
