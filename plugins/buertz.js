@@ -8,8 +8,7 @@ var buertzList = "./resources/buertz/Öl.txt";
 var admin = null;
 var buertzors = [];
 
-
-function randomBuertz(cb, filter) {
+function randomBuertz(cb, filter, filterparameters) {
     if (buertzors.length == 0){
         init(cb);
         cb(null, 'inga buertz än, vänta nån sekund...')
@@ -17,13 +16,26 @@ function randomBuertz(cb, filter) {
     }
     var useFilter = false;
     var filtered = [];
+
     if (filter !== undefined){
+      var filter = filter.toLowerCase();
+      if (filter.indexOf("sek") == -1 )
+      {
         filtered = buertzors.filter(
             function (element) {
                 return (parseFloat(element.Alkoholhalt[0].replace('%')) >= filter);
             }
         );
         useFilter = true;
+      } else {
+        filtered = buertzors.filter(
+          function (element) {
+            console.log(parseFloat(element.Prisinklmoms[0]) + " <= " + parseFloat(filterparameters));
+            return (parseFloat(element.Prisinklmoms[0]) <= parseFloat(filterparameters));
+          }
+        );
+        useFilter = true;
+      }
     }
 
     var data = "";
@@ -47,10 +59,8 @@ function refresh(cb){
 
         admin.emitter.on('refreshed',function(){
             load(cb);
-
         });
     }
-
     admin.refresh(cb);
 
 }
@@ -83,7 +93,7 @@ function info(cb,name){
 
     var buertz =  buertzors.filter(
         function (element) {
-            return (element.Namn == name);
+            return (element.Namn[0].toLowerCase().indexOf(name) > -1 );
         }
     );
 
@@ -103,6 +113,31 @@ function info(cb,name){
         }
         cb(null,data);
     }
+}
+
+function hangman(cb){
+    if (buertzors.length == 0){
+        cb(null,'burpaderp');
+        return;
+    }
+    var list = "";
+    buertzors.forEach(function(beer){
+        var n = beer.Namn +  (typeof beer.Namn2[0] === "string" ? ' ' + beer.Namn2[0] : '');
+        if (list == "")
+            list = n.replace(',','') ;
+        else
+            list += ',' +  n.replace(',','') ;
+    });
+
+    fs.open('./resources/hangman/öl.txt', 'w', 0666, function(err, fd) {
+        if(err) throw err;
+
+        fs.write(fd,  list, null, undefined, function(err, written) {
+            fs.close(fd, function(){
+                cb(null, 'hangman file saved, ' + written + ' bytes written');
+            });
+        });
+    });
 }
 
 function sayBeer (bot, from, to, message)
@@ -127,6 +162,9 @@ function sayBeer (bot, from, to, message)
                 bot.say(from, d);
             }, rest);
             break;
+        case "hangman":
+            hangman(callback);
+            break;
         case "help":
             callback(null,'!BUERTZ!');
             callback(null,'utan command slumpas 5 öl, ange en siffra för alkohol halten som skall överstigas...');
@@ -140,7 +178,7 @@ function sayBeer (bot, from, to, message)
             callback(null,'!BUERTZ!');
             break;
         default :
-            randomBuertz(callback, command);
+            randomBuertz(callback, command, rest);
             break;
     }
 
