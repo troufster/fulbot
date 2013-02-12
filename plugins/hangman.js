@@ -47,7 +47,6 @@ function readWordlist(){
       for (var key in letters) {
         op+=key;
       }
-      console.log(op);
 
       beers = fd.toString().slice(1, words.length-2).replace(/"/g,'').toLowerCase().split(",");
 
@@ -85,7 +84,7 @@ function getSentence(){
 }
 
 function newUser(from){
-  return {name : from, score : 0, g: 0, gcc: 0, gwc: 0, gcw:0, gww: 0, kills:0, hints:0, rounds:0, currentscore:0 };
+  return {name : from, score : 0, g: 0, gcc: 0, gwc: 0, gcw:0, gww: 0, kills:0, hints:0, rounds:0, currentscore:0,canGuess:true };
 }
 
 function writeUsers() {
@@ -103,6 +102,11 @@ function play(cb, l) {
   wrongletters = [];
   wrongGuess = 0;
   running = true;
+
+  var keys = Object.keys(users);
+  for(var i = keys.length-1;i>=0;i--) {
+    users[keys[i]].canGuess = true;
+  };
 
   var temp = [];
   if (l == 'öl') {
@@ -129,13 +133,6 @@ function play(cb, l) {
       var a = 0;
       var z = t.length-1;
       var m = Math.floor((z+a)/2);
-      console.log(t[a].length);
-      console.log(t[z-5]);
-      console.log(t[z-4]);
-      console.log(t[z-3]);
-      console.log(t[z-2]);
-      console.log(t[z-1]);
-      console.log(t[z]);
       while (a != z && a < z-1){
           if (t[m].length <= l){
               a = m;
@@ -148,8 +145,6 @@ function play(cb, l) {
       var r = Math.floor(Math.random() * t.length);
       word = t[r].trim();
   }
-  console.log(word);
-
   cb(null, getSentence());
 }
 
@@ -172,6 +167,10 @@ function done(cb){
   writeUsers();
 }
 
+function unblockUser(user){
+  user.canGuess = true;
+}
+
 function guess(n, cb, from) {
 
 
@@ -189,34 +188,37 @@ function guess(n, cb, from) {
           cb(null, u.name + " ... DERP");
       return;
   }
+  if(!u.canGuess) return;
 
+  u.canGuess = false;
+  setTimeout(unblockUser,3000,u);
   u.g++;
 
   n = n.toLowerCase();
   if (n.length == 1 && word.indexOf(n) != -1 && correctletters.indexOf(n) == -1) {
-      correctletters.push(n);
-      u.currentscore += word.split(new RegExp(n,'g')).length-1;
-      u.gcc++;
-      checkState(cb, u);
+    correctletters.push(n);
+    u.currentscore++;
+    u.gcc++;
+
+    checkState(cb, u);
   } else if ((n.length == 1 && word.indexOf(n) == -1) || (n != word && n.length == word.length)){
 
-      if (n.length == 1 && wrongletters.indexOf(n) == -1) {
-          wrongGuess++;
-          u.gwc++;
-          wrongletters.push(n);
-      }
-      else if (n.length > 1) {
-          wrongGuess++;
-          u.currentscore--;
-          u.gww++;
-      }
+    if (n.length == 1 && wrongletters.indexOf(n) == -1) {
+      wrongGuess++;
+      u.gwc++;
+      wrongletters.push(n);
+    }
+    else if (n.length > 1) {
+      wrongGuess++;
+      u.gww++;
+    }
 
-      checkState(cb, u);
+    checkState(cb, u);
   } else if (n == word) {
-        u.currentscore += 5;
+      u.currentscore += 5;
       u.gcw++;
       if (correctletters.length == 0){
-          cb(null, "DAYUM! Skill level: Asian");
+        cb(null, "DAYUM! Skill level: Asian");
       }
       cb(null, from + " saved me, the correct word was: " + word);
       done(cb);
@@ -236,7 +238,7 @@ function checkState(cb, u){
           cb(null, getSentence());
       }
   } else {
-      u.currentscore -= 2;
+      u.currentscore--;
       u.kills++;
       cb(null, word + "  " +  hangmanIcon[wrongGuess] +  "  " + wrongletters.join(" "));
       cb(null, "You're all bastards, but " + u.name + " killed me!!");
@@ -340,7 +342,6 @@ function remove(cb,w){
 
 
 function hangmanConfig(bot, from, to, message) {
-console.log(from +"  "+ to);
 var parts = message.split(" ");
 
 var command = parts[1];
@@ -410,10 +411,10 @@ switch(command) {
       break;
   case "help":
       bot.say(from, "In hangman, scoring is as follows: ");
-      bot.say(from, "    1 point per correct letter times occurrences (l in troll gives 2 points);");
+      bot.say(from, "    1 point per correct letter;");
       bot.say(from, "    5 points per correctly guessed word (i.e. typing the word);");
-      bot.say(from, "   -2 points for killing me;");
-      bot.say(from, "   -1 point per incorrect word;");
+      bot.say(from, "   -1 points for killing me;");
+      bot.say(from, "    0 point per incorrect word;");
       bot.say(from, "   -1 point per hint;");
       bot.say(from, "I accept the following commands:");
       bot.say(from, "!hangman play            starts a new round.");

@@ -32,7 +32,7 @@ function Admin(){
             fs.mkdir(buertzList);
           }
           fs.open(filename, 'w', 0666, function(err, fd) {
-            if(err){console.dir(err); throw err;}
+            if(err) throw err;
 
             fs.write(fd,  data, null, undefined, function(err, written) {
               fs.close(fd, function(){
@@ -57,7 +57,6 @@ function Admin(){
 
     this.on = function(event) {
         this.emitter.emit(event.Type, event);
-        console.log("Emit:" + event.Type);
     }
 
 }
