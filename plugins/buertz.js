@@ -30,7 +30,6 @@ function randomBuertz(cb, filter, filterparameters) {
       } else {
         filtered = buertzors.filter(
           function (element) {
-            console.log(parseFloat(element.Prisinklmoms[0]) + " <= " + parseFloat(filterparameters));
             return (parseFloat(element.Prisinklmoms[0]) <= parseFloat(filterparameters));
           }
         );
