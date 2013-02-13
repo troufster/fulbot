@@ -260,9 +260,21 @@ function hint(cb, from) {
 
 
   var rest = word;
+  console.log(rest);
+  var r = new RegExp("['&:/!#\.\* °(-)" + correctletters.join('') + ']','g'); //-'&:/!#.* °
 
-  var r = new RegExp('[' + correctletters.join('') + ']','g');
   rest = rest.replace(r,'');
+  console.log('rest:'+  rest);
+  if (rest.length == 0) return;
+
+  var unique = '';
+  for(var i = rest.length -1; i>=0;i--){
+    if (unique.indexOf(rest.charAt(i)) == -1 ){
+      unique += rest.charAt(i);
+    }
+  }
+  console.log(unique);
+  if (unique.length <= 1) return;
 
   var rand = Math.floor(Math.random() * rest.length);
 
@@ -270,9 +282,13 @@ function hint(cb, from) {
       users[from] = newUser(from);
   }
 
+
+
   var u = users[from];
   u.currentscore -= 1;
   u.hints++;
+  u.canGuess = false;
+  setTimeout(unblockUser,3000,u);
   correctletters.push(rest[rand]);
 
   wrongGuess++;
