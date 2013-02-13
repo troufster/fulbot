@@ -157,11 +157,17 @@ function done(cb){
   var text = "Scored this round:\n ";
 
   usernames.forEach(function(u){
-      text = text + users[u].name + ": " + users[u].currentscore + "  ";
+    text = text + users[u].name + ": " + users[u].currentscore + "  ";
+    if (usernames.length > 1 ){
       users[u].score += users[u].currentscore;
-      users[u].currentscore = 0;
-      users[u].rounds++;
+    }
+    else {
+      text += "\n" + 'too few users to add to total score.';
+    }
+    users[u].currentscore = 0;
+    users[u].rounds++;
   });
+
   cb(null, text);
   usernames =[];
   writeUsers();
@@ -190,8 +196,7 @@ function guess(n, cb, from) {
   }
   if(!u.canGuess) return;
 
-  u.canGuess = false;
-  setTimeout(unblockUser,3000,u);
+
   u.g++;
 
   n = n.toLowerCase();
@@ -199,20 +204,24 @@ function guess(n, cb, from) {
     correctletters.push(n);
     u.currentscore++;
     u.gcc++;
-
     checkState(cb, u);
+    u.canGuess = false;
+    setTimeout(unblockUser,3000,u);
   } else if ((n.length == 1 && word.indexOf(n) == -1) || (n != word && n.length == word.length)){
 
     if (n.length == 1 && wrongletters.indexOf(n) == -1) {
       wrongGuess++;
       u.gwc++;
       wrongletters.push(n);
+      u.canGuess = false;
+      setTimeout(unblockUser,3000,u);
     }
     else if (n.length > 1) {
       wrongGuess++;
       u.gww++;
+      u.canGuess = false;
+      setTimeout(unblockUser,3000,u);
     }
-
     checkState(cb, u);
   } else if (n == word) {
       u.currentscore += 5;
@@ -437,12 +446,12 @@ exports.listeners = function (){ return [{
     name : "hangmanPlay",
     match : /['&:/!#\.\* °0-9a-zåöäéæáüøèýæë]*?/i,
     func : hangMan,
-    listen : ["#games"]
+    listen : ["#games","#botdev"]
   }, {
     name : "hangmanConfig",
     match : /^\!hangman/i,
     func : hangmanConfig,
-    listen : ["#games"]
+    listen : ["#games","#botdev"]
   }]};
 
 init();
