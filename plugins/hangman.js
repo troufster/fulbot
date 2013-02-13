@@ -446,7 +446,7 @@ exports.listeners = function (){ return [{
     name : "hangmanPlay",
     match : /['&:/!#\.\* °0-9a-zåöäéæáüøèýæë]*?/i,
     func : hangMan,
-    listen : ["#games","#botdev"]
+    listen : ["#games","#botdev", "priv"]
   }, {
     name : "hangmanConfig",
     match : /^\!hangman/i,
