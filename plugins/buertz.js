@@ -96,7 +96,7 @@ function info(cb,name){
         }
     );
 
-    if (buertz.length > 0) {
+    if (buertz.length == 1) {
         var data = "";
         for (var i = buertz.length -1; i>=0;i--) {
             if (data != "" ) data += "\n";
@@ -111,6 +111,12 @@ function info(cb,name){
             data += '\n  Sälj start  : ' + buertz[i].Saljstart;
         }
         cb(null,data);
+    } else if(buertz.length > 1){
+      var data = "";
+      for (var i = buertz.length -1; i>=0;i--)
+        data += buertz[i].Namn + ' ' + (typeof buertz[i].Namn2[0] === "string" ? buertz[i].Namn2[0] : '') + '\n' ;
+
+      cb(null,data);
     }
 }
 
