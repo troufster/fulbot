@@ -4,6 +4,8 @@ var Utils = require('../utils').Utils;
 function doRussianRoulette(bot, from, to, message) {
   var isChan = Utils.isChanMessage(to);
 
+  if(!Utils.isUserOperator(bot, to, from)) return;
+
   if(isChan && Utils.isUserOperator(bot, to, bot.nick)) {
     var users = Utils.userList(bot, to);
 
