@@ -11,8 +11,6 @@ function doRussianRoulette(bot, from, to, message) {
 
     var ua = Object.keys(users);
 
-    console.log(ua);
-
     var me = ua.indexOf(bot.nick);
 
     //Dont kick self lol
@@ -24,13 +22,9 @@ function doRussianRoulette(bot, from, to, message) {
 
     var kick = ua[rnd];
 
-
-    //console.log();
-
     bot.say(to, "I choose you, " + kick + "!!");
 
     var pew = Math.floor(Math.random() * 6) + 1;
-    console.log(pew);
     if(pew == 3) {
       bot.say(to, 'Boom!');
       bot.send('kick', to, kick, 'You have been randomly selected for termination.');
