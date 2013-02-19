@@ -124,6 +124,7 @@ exports.listeners = function() {
   return [{
     name : "Quotebot",
       match : /^\!quote/i,
-      func : quoteMain
+      func : quoteMain,
+      listen : ["#sogeti", "priv"]
   }];
 };

@@ -5,9 +5,9 @@ function sayFoodCT(bot, from, to, message) {
 
 exports.listeners = function(){
     return [{
-          name : '!foodzor randomizer special',
-              match : /\!Iunch/i,
-                  func : sayFoodCT
-
-                        }];
+        name : '!foodzor randomizer special',
+        match : /\!Iunch/i,
+        func : sayFoodCT,
+        listen : ["#sogeti"]
+    }];
 };
