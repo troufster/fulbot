@@ -47,6 +47,6 @@ exports.listeners = function(){
     name : '!rr listener',
     match : /^\!rr/i,
     func : doRussianRoulette,
-    listen : ["#sogeti", "#botdev", "priv"]
+    listen : ["#sogeti", "#botdev"]
   }];
 };
