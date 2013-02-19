@@ -16,6 +16,14 @@ Utils.isChanMessage = function(to) {
   return !!(to.match(/^[#&]/));
 };
 
+Utils.isUserOperator = function(bot, channel, nick) {
+  return bot.chans[channel].users[nick].indexOf("@") > -1;
+}
+
+Utils.userList = function(bot, channel) {
+  return bot.chans[channel].users;
+};
+
 Utils.prototype.canSpeak = function(channel) {
   
   //Assume we can speak to users
