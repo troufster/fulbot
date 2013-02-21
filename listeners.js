@@ -4,6 +4,7 @@ var Utils = require('./utils').Utils;
 
 function Listener(bot) {
     this.listeners = [];
+    this.commands = {};
     this.utils =  new Utils();
 
     this.bot = bot;
@@ -50,6 +51,7 @@ Listener.prototype.mapRoutes = function(_cb) {
         }
     }
 
+
     _cb(null);
 };
 
@@ -57,8 +59,18 @@ Listener.prototype.addListener = function(l) {
     this.listeners.push(l);
 };
 
+Listener.prototype.addCommand = function(c) {
+  this.commands[c.cmd] = c;
+};
+
 Listener.prototype.loadPlugins  = function(_cb) {
     var that = this;
+    var dispatch = 2;
+
+    //Await both async ops
+    function cb() {
+      if(dispatch == 0) _cb(null);
+    }
 
     fs.readdir('./plugins', function(err, f) {
         if(err) throw err;
@@ -79,32 +91,56 @@ Listener.prototype.loadPlugins  = function(_cb) {
             }
         }
 
-        _cb(null);
+        dispatch--;
+        cb();
 
     });
+
+  fs.readdir('./commands', function(err, f) {
+    if(err) throw err;
+
+    for(var i = 0, l = f.length; i < l; i++) {
+      var file = f[i];
+
+      if(file.indexOf(".js") < 0) {
+        continue;
+      }
+
+      var plugName = __dirname.replace(/\\/g,'/' ) + "/commands/" + file;
+
+      var plug = require(plugName);
+
+      if(plug.listeners) {
+        that.addCommand(plug.listeners());
+      }
+    }
+
+    dispatch--;
+    cb();
+
+  });
 };
 
 Listener.prototype.checkListeners =function(from, to, message) {
 
-    if(!this.utils.canSpeak(to)) return;;
+    if(!this.utils.canSpeak(to)) return;
 
     var routes = this.routes;
     var bot = this.bot;
     var tochan = Utils.isChanMessage(to);
 
-    var route = tochan ? routes[to] : routes['priv'];
+    //Command?
+    if(!tochan && message.match(/^\./i)) {
+      var command = message.substr(1, message.length);
 
-    //Debug
-    if(message.match(/\!chanlisteners/i)) {
-        for(var i = 0, l = this.listeners.length; i < l; i++) {
-            var listener = this.listeners[i];
-            for(var j = 0, jl = listener.length; j < jl; j++) {
+      var cmdFunc = this.commands[command];
 
-                this.bot.say(to, i + ": " + listener[j].name + "::" +  listener[j].match + "::" + listener[j].listen);
-            }
-
-        }
+      if(cmdFunc){
+        return cmdFunc.func.call(this, to, from, message);
+      }
     }
+
+    var route = tochan ? routes[to] : routes['priv'];
 
     //Exec route
     if(!route) return;

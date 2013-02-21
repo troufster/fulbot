@@ -8,7 +8,9 @@ Utils.prototype.init = function(bot) {
 };
 
 Utils.prototype.isUserOperator = function(channel, nick){
-    return this.bot.chans[channel].users[nick].indexOf("@") > -1;
+  var n = this.bot.chans[channel].users[nick];
+
+  return n.indexOf("@") > -1 || n.indexOf("%") > -1 ;
 };
 
 Utils.prototype.isUserOnChannel = function(channel, nick){
@@ -17,6 +19,15 @@ Utils.prototype.isUserOnChannel = function(channel, nick){
 
 Utils.isChanMessage = function(to) {
   return !!(to.match(/^[#&]/));
+};
+
+Utils.isUserOperator = function(bot, channel, nick) {
+  var n = bot.chans[channel].users[nick];
+  return n.indexOf("@") > -1 || n.indexOf("%") > -1;
+};
+
+Utils.userList = function(bot, channel) {
+  return bot.chans[channel].users;
 };
 
 Utils.prototype.canSpeak = function(channel) {
