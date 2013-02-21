@@ -1,7 +1,7 @@
 var conf = {
   server : "irc.isolated.se",
-  channels : ["#sogeti","#botdev", "#rpg"],
-  nick : "Olla"
+  channels : ["#botdev", "#rpg"],
+  nick : "Kommunchef"
 };
 
 module.exports = conf;
