@@ -46,10 +46,10 @@ exports.listeners = function(){return [{
     name : "trivia",
     match : /^\!trivia/i,
     func : trivia,
-    listen : ["#bruce"]
+    listen : ["#games"]
 }, {
     name : "trivia",
     match : /[^!].*/,
     func : answer,
-    listen : ["#bruce"]
+    listen : ["#games"]
 }]};
