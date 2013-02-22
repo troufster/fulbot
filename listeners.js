@@ -20,8 +20,8 @@ function Listener(bot) {
         that.mapRoutes(function(err, _cb) {
 
             //Register main listener
-            bot.addListener("message", function(from, to, message) {
-                that.checkListeners(from, to, message);
+            bot.addListener("message", function(from, to, message, raw) {
+                that.checkListeners(from, to, message, raw);
             });
 
         });
@@ -83,7 +83,7 @@ Listener.prototype.loadPlugins  = function(_cb) {
             }
 
             var plugName = __dirname.replace(/\\/g,'/' ) + "/plugins/" + file;
-
+            console.log(plugName);
             var plug = require(plugName);
 
             if(plug.listeners) {
@@ -121,36 +121,36 @@ Listener.prototype.loadPlugins  = function(_cb) {
   });
 };
 
-Listener.prototype.checkListeners =function(from, to, message) {
+Listener.prototype.checkListeners =function(from, to, message, raw) {
 
-    if(!this.utils.canSpeak(to)) return;
+  if(!this.utils.canSpeak(to)) return;
 
-    var routes = this.routes;
-    var bot = this.bot;
-    var tochan = Utils.isChanMessage(to);
+  var routes = this.routes;
+  var bot = this.bot;
+  var tochan = Utils.isChanMessage(to);
 
-    //Command?
-    if(!tochan && message.match(/^\./i)) {
-      var command = message.substr(1, message.length);
+  //Command?
+  if(!tochan && message.match(/^\./i)) {
+    var command = message.substr(1, message.length);
 
-      var cmdFunc = this.commands[command];
+    var cmdFunc = this.commands[command];
 
-      if(cmdFunc){
-        return cmdFunc.func.call(this, to, from, message);
-      }
+    if(cmdFunc){
+      return cmdFunc.func.call(this, to, from, message);
     }
+  }
 
-    var route = tochan ? routes[to] : routes['priv'];
+  var route = tochan ? routes[to] : routes['priv'];
 
-    //Exec route
-    if(!route) return;
+  //Exec route
+  if(!route) return;
 
-    route.forEach(function(r) {
-        if(message.match(r[0])) {
+  route.forEach(function(r) {
+    if(message.match(r[0])) {
 
-            tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
-        }
-    });
+      tochan ? r[1](bot, from, to, message, raw) : r[1](bot, to, from, message, raw);
+    }
+  });
 
 };
 

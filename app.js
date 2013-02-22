@@ -10,4 +10,8 @@ var bot = new irc.Client(conf.server, conf.nick, {
 
 var listeners = new Listener(bot);
 
+process.on('uncaughtException', function(err) {
+  console.log(err);
+});
+
 
