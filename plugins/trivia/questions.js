@@ -1,48 +1,94 @@
+"use strict";
 var util = require('util');
 var fs = require("fs");
 var triviaList = "./resources/trivia/trivia.txt";
 
 function read(file){
-        if (fs.existsSync(file) ) {
-            return JSON.parse(fs.readFileSync(file));
-        }
-        return {};
+    if (fs.existsSync(file) ) {
+      return JSON.parse(fs.readFileSync(file));
+    }
+    return {};
 }
 
 function write(file, json){
-    fs.open(file, 'w', 0666,
-        function(err, fd) {
-            if(err) return;
-            fs.write(fd,  JSON.stringify(json), null, undefined, function(err, written) {});
-        }
-    );
+  fs.open(file, 'w', 666,
+    function(err, fd) {
+      if(err) {
+        return;
+      }
+      fs.write(fd,  JSON.stringify(json), null, undefined, function(err, written) {});
+    }
+  );
 }
 
 function Questions(){
-    this.questions = read(triviaList);
-}
+  var questions = read(triviaList);
 
-Questions.prototype.total = function(){
+  this.total = function(){
     var t = 0;
-    for (var question in this.questions){
-        t += this.questions[question].length;
+    for (var question in questions){
+      if(questions.hasOwnProperty(question)){
+        t += questions[question].length;
+      }
     }
     return t;
-}
+  };
 
-Questions.prototype.random = function(category){
+  this.random = function(category){
     var q = null;
-    if (category == null){
-        var categories = Object.keys(this.questions);
-        var rc = Math.floor(Math.random() * categories.length);
-        c = this.questions[categories[rc]];
+    if (category === undefined){
+      var categories = Object.keys(questions);
+      var rc = Math.floor(Math.random() * categories.length);
+      q = questions[categories[rc]];
     } else {
-        c = this.questions[category];
+      q = questions[category];
     }
 
-    var rq = Math.floor(Math.random() * c.length);
-    return c[rq];
+    var rq = Math.floor(Math.random() * q.length);
+    return q[rq];
+  };
+
+  this.categories = function(){
+    var uniqueCategories = [];
+    for(var category in questions) {
+      if(questions.hasOwnProperty(category)){
+        if (uniqueCategories.indexOf(category) === -1)
+        {
+          uniqueCategories.push(category);
+        }
+      }
+    }
+    return uniqueCategories;
+  };
+
+  var Question = function(q,a,t){
+    this.question = q;
+    this.type = t;
+
+    if (t === "*"){
+      this.answer = a[0].toLowerCase();
+    } else {
+      this.answer = a;
+    }
+
+
+
+    return this;
+  };
+
+  this.newQuestion = function(category, q, a, t){
+    var question = new Question(q, a, t);
+
+    if(questions[category] === undefined ){
+      questions[category] =[];
+    }
+
+    questions[category].push(question);
+    write(triviaList, questions);
+  };
 }
+
+
 
 
 
