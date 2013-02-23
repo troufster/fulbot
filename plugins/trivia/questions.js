@@ -14,9 +14,13 @@ function write(file, json){
   fs.open(file, 'w', 666,
     function(err, fd) {
       if(err) {
-        return;
+        throw err;
       }
-      fs.write(fd,  JSON.stringify(json), null, undefined, function(err, written) {});
+      fs.write(fd,  JSON.stringify(json), null, undefined, function(err, written) {
+        if(err) {
+          throw err;
+        }
+      });
     }
   );
 }

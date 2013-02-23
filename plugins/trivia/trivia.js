@@ -59,7 +59,6 @@ function Trivia(b, c){
     if (roundQuestions.length > 0) {
       score = 90;
       currentQuestion = roundQuestions.pop();
-      console.log(currentQuestion.answer);
       switch(currentQuestion.type){
         case "*":
           //unscramble
@@ -68,7 +67,7 @@ function Trivia(b, c){
         case "abc":
           //multiple choice
           var t = currentQuestion.question;
-          var a = currentQuestion.choice.reverse();
+          var a = currentQuestion.answer.reverse();
           for(var i = a.length-1;i>= 0; i--){
             t += " " + a[i];
           }
@@ -142,7 +141,7 @@ function Trivia(b, c){
 
   /* public */
   /**
-   * @returns {bool} whether trivia is started or not.
+   * @returns {Boolean} whether trivia is started or not.
    */
   this.Running = function(){
     return running;
@@ -171,7 +170,7 @@ function Trivia(b, c){
     for(var p in players){
       if (players.hasOwnProperty(p)){
         currentUser = users.getUser(players[p]);
-        b = b & currentUser.passed;
+        b = b && currentUser.passed;
       }
     }
     if (b){
@@ -180,7 +179,6 @@ function Trivia(b, c){
   };
 
   this.printTotalScores = function(){
-    var a = users.users;//.sort(function(a,b){ return users.getUser(a).total - users.getUser(b).total; });
     speak("And here are the overall scores:");
     for (var user in users.users){
       if(users.users.hasOwnProperty(user)){
