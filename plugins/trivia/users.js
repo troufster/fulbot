@@ -1,3 +1,4 @@
+"use strict";
 var util = require('util');
 var fs = require("fs");
 var userList = "./resources/trivia/triviausers.txt";
@@ -10,9 +11,14 @@ function read(file){
 }
 
 function write(file, j){
-    fs.open(file, 'w', 0666, function(err, fd) {
-        if(err) return;
+    fs.open(file, 'w', 666, function(err, fd) {
+        if(err) {
+          throw err;
+        }
         fs.write(fd,  JSON.stringify(j), null, undefined, function(err, written) {
+          if(err) {
+            throw err;
+          }
         });
     });
 }
@@ -23,14 +29,14 @@ function Users(){
 
 Users.prototype.save = function(){
     write(userList, this.users);
-}
+};
 
 Users.prototype.getUser = function(n){
     if (this.users[n] === undefined){
         return this.newUser(n);
     }
     return this.users[n];
-}
+};
 
 Users.prototype.newUser = function(n){
     var user = {
@@ -42,7 +48,7 @@ Users.prototype.newUser = function(n){
 
     this.users[n] = user;
     return user;
-}
+};
 
 
 module.exports = Users;
