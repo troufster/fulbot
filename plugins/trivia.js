@@ -38,6 +38,9 @@ function trivia(bot, from, to, message){
     case "scores":
       tt.printTotalScores();
       break;
+    case "categories":
+      tt.categories();
+      break;
     case "help":
       if (parts.length === 1){
           help(to);
@@ -89,6 +92,7 @@ function help(to, subject){
         "       - abc     : a multiple choice question, answer is a or b or ... or z \n"
       );
       break;
+
     default:
       bot.say(to,"trivia accepts the following command:\n   play\n   scores\n   pass\n   add");
       break;

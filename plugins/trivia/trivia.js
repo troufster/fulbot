@@ -147,10 +147,10 @@ function Trivia(b, c){
     return running;
   };
 
-  this.Categories = function(){
+  this.categories = function(){
     var categories = questions.categories();
     categories.forEach(function(category){
-      speak(util.format("%s \n", category));
+      speak(util.format("%s : %s", category, questions.total(category)));
     });
   };
 

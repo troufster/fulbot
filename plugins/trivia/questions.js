@@ -28,8 +28,11 @@ function write(file, json){
 function Questions(){
   var questions = read(triviaList);
 
-  this.total = function(){
+  this.total = function(category){
     var t = 0;
+    if (category !== undefined && questions[category] !== undefined){
+        return questions[category].length;
+    }
     for (var question in questions){
       if(questions.hasOwnProperty(question)){
         t += questions[question].length;
