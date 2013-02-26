@@ -40,7 +40,7 @@ function Questions(){
 
   this.random = function(category){
     var q = null;
-    if (category === undefined){
+    if (category === undefined || questions[category] === undefined){
       var categories = Object.keys(questions);
       var rc = Math.floor(Math.random() * categories.length);
       q = questions[categories[rc]];
