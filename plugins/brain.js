@@ -70,7 +70,6 @@ function filterMessage(message, bot) {
   //Normalize semicolons
   message = message.replace("; ", ", ");
 
-
   //Trim whitespace
   message = trimstr(message);
 
@@ -244,6 +243,12 @@ function brain(bot, from, to, message) {
 };
 
 function spam(bot, from, to, message) {
+
+  //Dont bother with command spam :P
+  if(message[0] === "!") {
+    return;
+  }
+
 	if(s.learning) {
 		message = filterMessage(message);
 
