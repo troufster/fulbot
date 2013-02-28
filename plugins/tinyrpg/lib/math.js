@@ -10,8 +10,7 @@ function Extrapolator() {
   this.s = [];
   this.t = [];
   this.sol = [];
-};
-
+}
 /*
  * Add a sample to the extrapolator
  * @param {Number} s Sample

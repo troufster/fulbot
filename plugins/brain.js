@@ -1,3 +1,5 @@
+'use strict';
+
 var fs = require('fs');
 
 function trimstr(str) {
@@ -6,61 +8,76 @@ function trimstr(str) {
 
 function readFileJSON(filename, _cb) {
 		fs.readFile(filename, function(e, d) {
-			if (e) return _cb(e);
-			_cb(null, JSON.parse(d.toString()));
+			if (e) {
+        return _cb(e);
+      }
+			return _cb(null, JSON.parse(d.toString()));
 		});
 }
 
 function writeFileJSON(filename, data, _cb) {
-	fs.open(filename, 'w', 0666, function(err, d) {
-		if(err) return _cb(err);
+	fs.open(filename, 'w', 0x0666, function(err, d) {
+		if(err) {
+      return _cb(err);
+    }
 
-		fs.write(d, JSON.stringify(data), null, undefined, function(err, written) {
-			if(err) return _cb(err);
+		return fs.write(d, JSON.stringify(data), null, undefined, function(err, written) {
+			if(err) {
+        return _cb(err);
+      }
 
-			_cb(null, written);
+			return _cb(null, written);
 		});
 	});
 }
 
 function setCharAt(str,index,chr) {
-    if(index > str.length-1) return str;
+    if(index > str.length-1) {
+      return str;
+    }
     return str.substr(0,index) + chr + str.substr(index+1);
 }
 
 function filterMessage(message, bot) {
-	message = message.toLowerCase();
-	
-	//remove garbage
-	message = message.replace('\"', '');
-	message = message.replace("'", '');
-	message = message.replace('\n', '');
-	message = message.replace('\r', '');
-	
-	//Remove matching braces
-	//Unmatched would be a smiley
-	var index = 0;
-	
-	while (true){
-		
-		if(index >= message.length) break;
-		index = message.indexOf("(", index);
-		var i = message.indexOf(")", index+1);
-		if(index <=0) break;
-		
-		message = setCharAt(message, index, "");
-		message = setCharAt(message, i-1, "");
-		
-		index=0;
-	}
-	
-	//Remove URLs	
-	message = message.replace(/https?:\/\/[^ ]*/g, "");
-	
-	//Normalize semicolons
-	message = message.replace("; ", ", ");
-	
-	return message;
+  message = message.toLowerCase();
+
+  //remove garbage
+  message = message.replace(/\"/g, "");
+  message = message.replace(/'/g, "");
+  message = message.replace('\n', '');
+  message = message.replace('\r', '');
+  //"""
+  //Remove matching braces
+  //Unmatched would be a smiley
+  var index = 0;
+
+  while (true){
+
+    if(index >= message.length) break;
+    index = message.indexOf("(", index);
+    var i = message.indexOf(")", index+1);
+    if(index <=0) break;
+
+    message = setCharAt(message, index, "");
+    message = setCharAt(message, i-1, "");
+
+    index=0;
+  }
+
+  //Remove URLs
+  message = message.replace(/https?:\/\/[^ ]*/g, "");
+
+  //Normalize semicolons
+  message = message.replace("; ", ", ");
+
+
+  //Trim whitespace
+  message = trimstr(message);
+
+  //Remove double whitespaces
+  message = message.replace(/\s+/g, ' ');
+
+  return message;
 }
 
 function MarkovBrain() {	
@@ -139,25 +156,38 @@ MarkovBrain.prototype.reply = function(source, depth) {	var reply = [];
 };
 
 MarkovBrain.prototype.learn = function(data) {
-	var words = data.split(' ');
-	var limit = words.length-2;
-	var i = 0;
-	
-	while(i < limit) {
-		var first = words[i];
-		var second = words[i+1];
-		var value = words[i+2];
-		
-		var segment = first + ' ' + second;
-		
-		if(!this._root.hasOwnProperty(segment)) {
-			this._root[segment] = [];
-		}
-		
-		this._root[segment].push(value);
-		
-		i++;
-	}			
+  var words = data.split(' ');
+
+  if(words.length < 3) {
+    return;
+  }
+
+  var limit = words.length-2;
+  var i = 0;
+
+  while(i < limit) {
+    var first = words[i];
+    var second = words[i+1];
+    var value = words[i+2];
+
+    var segment = first + ' ' + second;
+
+    if(!this._root.hasOwnProperty(segment)) {
+      this._root[segment] = [];
+    }
+
+
+    if(value.length > 0 && value !== undefined) {
+
+      //Only add if value doesn't already exist derp
+      if(this._root[segment].indexOf(value) == -1) {
+        this._root[segment].push(value);
+      }
+    }
+
+    i++;
+  }
+
 };
 
 var s = new MarkovBrain();
@@ -206,18 +236,18 @@ function brain(bot, from, to, message) {
 			break;
 		case "root":
 			var root = parts[2] + ' ' + parts[3];
-			bot.say(to, s._root[root]);
+			bot.say(to, s._root[root].join('|'));
 	}
 		
 };
 
-function spam(bot, from, to, message) { 	
+function spam(bot, from, to, message) {
 	if(s.learning) {
 		message = filterMessage(message);
-			
-		if(message.indexOf(bot.nick.toLowerCase()) == -1) {
-			s.learn(message);
-		}
+
+    if (-1 === message.indexOf(bot.nick.toLowerCase())) {
+      s.learn(message);
+    }
 	}				
 	
 	//Random chance to spam crap 
