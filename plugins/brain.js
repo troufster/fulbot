@@ -217,6 +217,17 @@ function spam(bot, from, to, message) {
 		}
 	}				
 	
+	//Random chance to spam crap 
+	var rnd = MarkovBrain.rnd(100);
+	
+	if (rnd <= 8) {
+		
+		setTimeout(function() {
+			bot.say(to, s.reply(message, MarkovBrain.rnd(10)));
+		}, 5000);
+	}
+	
+	
 	//U talking shit about me bish?
 	if(message.toLowerCase().indexOf(bot.nick.toLowerCase()) > -1) {
 		bot.say(to, s.reply(message, MarkovBrain.rnd(10)));
