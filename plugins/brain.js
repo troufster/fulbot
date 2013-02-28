@@ -204,6 +204,9 @@ function brain(bot, from, to, message) {
 		case "random":
 			bot.say(to, s.reply("", MarkovBrain.rnd(10)));
 			break;
+		case "root":
+			var root = parts[2] + ' ' + parts[3];
+			bot.say(to, s._root[root]);
 	}
 		
 };
