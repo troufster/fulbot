@@ -215,8 +215,7 @@ function spam(bot, from, to, message) {
 		if(message.indexOf(bot.nick.toLowerCase()) == -1) {
 			s.learn(message);
 		}
-	}		
-		
+	}				
 	
 	//U talking shit about me bish?
 	if(message.toLowerCase().indexOf(bot.nick.toLowerCase()) > -1) {
