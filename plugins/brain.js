@@ -236,7 +236,9 @@ function brain(bot, from, to, message) {
 			break;
 		case "root":
 			var root = parts[2] + ' ' + parts[3];
-			bot.say(to, s._root[root].join('|'));
+      var vals = s._root[root];
+
+			bot.say(to, vals ? vals.join('|') : "No such root");
 	}
 		
 };
