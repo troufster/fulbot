@@ -83,7 +83,9 @@ fs.open(wordlist, 'w', 666, function(err, fd) {
 function readUsers(){
   fs.readFile(userlist, function(err, fd) {
     if(err) {
-      throw err;
+	return "No file dude";
+	//L2code
+      
     }
     users = JSON.parse(fd.toString());
   });
