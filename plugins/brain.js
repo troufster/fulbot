@@ -81,7 +81,8 @@ function filterMessage(message, bot) {
 
 function MarkovBrain() {	
 	this._root = {};
-	this.learning = false;
+	this.learning = true;
+	this.spamchance = 8;
 	
 	this.noendwords = ['att'];
 }
@@ -221,7 +222,8 @@ function brain(bot, from, to, message) {
 		case "stats":
 			var cells = Object.keys(s._root).length;
 			var d = cells + " roots in my brain, sir.\nUsing " + process.memoryUsage().rss + " bytes of sweet, juicy memory\n" ;
-			d += "Learning state : " + s.learning.toString();
+			d += "Learning state : " + s.learning.toString() + "\n";
+			d += "Spamlevel : " + s.spamchance;
 	
 			bot.say(to, d);    
 			break;	 
@@ -235,9 +237,18 @@ function brain(bot, from, to, message) {
 			break;
 		case "root":
 			var root = parts[2] + ' ' + parts[3];
-      var vals = s._root[root];
+			var vals = s._root[root];
 
 			bot.say(to, vals ? vals.join('|') : "No such root");
+			break;
+		case "spam":
+			var val = parseInt(parts[2]);
+			if(!isNaN(parseFloat(val)) && isFinite(val)) {
+				s.spamchance = val;
+				bot.say(to, "Spamlevel set to : " + s.spamchance);
+			}
+			
+		
 	}
 		
 };
@@ -260,7 +271,7 @@ function spam(bot, from, to, message) {
 	//Random chance to spam crap 
 	var rnd = MarkovBrain.rnd(100);
 	
-	if (rnd <= 8) {
+	if (rnd <= s.spamchance) {
 		
 		setTimeout(function() {
 			bot.say(to, s.reply(message, MarkovBrain.rnd(10)));
