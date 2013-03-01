@@ -288,12 +288,12 @@ exports.listeners = function (){ return [{
     name : "!brain listener",
     match : /^!brain/i,
     func : brain,
-    listen : ["#sogeti","#games","#botdev", "priv"]
+    listen : ["#sogeti","#games","#botdev", "#ordvits", "priv"]
   },{
     name : "spam listener",
     match : /(.*)/i,
     func : spam,
-    listen : ["#sogeti","#games","#botdev", "priv"]
+    listen : ["#sogeti","#games","#botdev","#ordvits", "priv"]
   }];
   
 };
