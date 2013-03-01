@@ -245,7 +245,7 @@ function brain(bot, from, to, message) {
 			var val = parseInt(parts[2]);
 			if(!isNaN(parseFloat(val)) && isFinite(val)) {
 				s.spamchance = val;
-				bot.say("#sogeti", "Spamlevel set to : " + s.spamchance + " requested by " + from);
+				bot.say(to, "Spamlevel set to : " + s.spamchance);
 			}
 			
 		
@@ -288,12 +288,12 @@ exports.listeners = function (){ return [{
     name : "!brain listener",
     match : /^!brain/i,
     func : brain,
-    listen : ["#sogeti","#games","#botdev", "#ordvits", "priv"]
+    listen : ["#sogeti","#games","#botdev", "#ordvits"]
   },{
     name : "spam listener",
     match : /(.*)/i,
     func : spam,
-    listen : ["#sogeti","#games","#botdev","#ordvits", "priv"]
+    listen : ["#sogeti","#games","#botdev",, "priv"]
   }];
   
 };
