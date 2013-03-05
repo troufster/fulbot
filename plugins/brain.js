@@ -19,6 +19,7 @@ function writeFileJSON(filename, data, _cb) {
 	fs.open(filename, 'w', 0x0666, function(err, d) {
 		if(err) {
     			return _cb(err);
+		}
     		
 
 		return fs.write(d, JSON.stringify(data), null, undefined, function(err, written) {
