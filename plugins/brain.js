@@ -23,7 +23,7 @@ function writeFileJSON(filename, data, _cb) {
 
 		return fs.write(d, JSON.stringify(data), null, undefined, function(err, written) {
 			if(err) {
-        			urn _cb(err);
+        			return _cb(err);
 			}
 			
 			fs.close(d,function(){      				
