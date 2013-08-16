@@ -88,7 +88,7 @@ function MarkovBrain() {
 	this.learning = true;
 	this.spamchance = 8;
 	
-	this.noendwords = ['att'];
+	this.noendwords = ['att', 'och', 'med'];
 }
 
 MarkovBrain.rnd = function(ceil) {
