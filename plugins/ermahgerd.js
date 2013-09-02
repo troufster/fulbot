@@ -103,7 +103,7 @@ function str_split(string, split_length) {
     }
     
     if (originalWord[originalWord.length-1] == 'A'){
-      word.concat('ER');
+      word = word.concat('ER');
     }
     
     return word;
