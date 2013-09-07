@@ -30,7 +30,9 @@ function doRussianRoulette(bot, from, to, message) {
       ua.splice(me,1);
     }
 
-    if (ua.indexOf(user) === -1) return;
+    if (user !== "" && ua.indexOf(user) === -1){
+      return;
+    }
 
     var kick = "";
     if (user === "") {
