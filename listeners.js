@@ -23,6 +23,9 @@ function Listener(bot) {
             bot.addListener("message", function(from, to, message) {
                 that.checkListeners(from, to, message);
             });
+            bot.addListener("join", function(from, to, message) {
+               that.checkCommandListeners(from, to, message);
+            });
 
         });
     });
@@ -46,11 +49,14 @@ Listener.prototype.mapRoutes = function(_cb) {
                     this.routes[route] = [];
                 }
 
-                this.routes[route].push([lis.match, lis.func]);
+                if (lis.match !== undefined){
+                  this.routes[route].push([lis.match, lis.func]);
+                } else if(lis.command !== undefined) {
+                  this.routes[route].push([lis.command, lis.func]);
+                }
             }
         }
     }
-
 
     _cb(null);
 };
@@ -151,6 +157,29 @@ Listener.prototype.checkListeners =function(from, to, message) {
             tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
         }
     });
+
+};
+
+Listener.prototype.checkCommandListeners = function(from, to, message){
+  //message.command
+  //message.nick
+
+  if (to === this.bot.nick ) {return;}
+  if(!this.utils.canSpeak(from)) {return;}
+
+  var routes = this.routes;
+  var bot = this.bot;
+
+  var route = routes[from];
+
+  //Exec route
+  if(!route) {return;}
+
+  route.forEach(function(r) {
+    if(message.command === r[0]) {
+      r[1](bot, from, to, message);
+    }
+  });
 
 };
 
