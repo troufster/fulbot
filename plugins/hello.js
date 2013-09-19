@@ -8,7 +8,13 @@ function readFileJSON(filename, _cb) {
     if (e) {
       return _cb(e);
     }
-    return _cb(null, JSON.parse(d.toString()));
+    try{
+      return _cb(null, JSON.parse(d.toString()));
+    }
+    catch(e){
+      console.log(e);
+    }
+    return _cb(null, null);
   });
 }
 
@@ -75,6 +81,9 @@ function HelloHandler() {
   readFileJSON(resourceFile, function(e, d) {
     if(e) {
       console.log(e);
+      return;
+    }
+    if (d === null) {
       return;
     }
     that.data.specialUsers = d.specialUsers;
