@@ -50,13 +50,13 @@ function HelloHandler() {
   this.data = {};
   this.data.specialUsers = [];
   this.data.greetings = [];
-
+  /*
   this.AddGreeting('%1 Allahu akhbar!!!11');
   this.AddGreeting('%1, Konsultmässighet!');
   this.AddGreeting('Woop woop! %1! DUB DUB DUB DUBBA DUB DUB');
 
   this.AddUser('ocosmo', null,'http://ho.io/omsoc');
-
+  */
 
 
   readFileJSON(resourceFile, function(e, d) {
@@ -187,6 +187,6 @@ exports.listeners = function(){
     name : "join listener",
     command : 'JOIN',
     func : join,
-    listen : ["#botdev"]
+    listen : ["#sogeti","#botdev"]
   }];
 };
