@@ -1,5 +1,6 @@
 'use strict';
 var fs = require('fs');
+var resourcePath = './resources/hello';
 var resourceFile = './resources/hello/hello.json';
 
 function readFileJSON(filename, _cb) {
@@ -11,13 +12,13 @@ function readFileJSON(filename, _cb) {
   });
 }
 
-function writeFileJSON(filename, data, _cb) {
+function writeFile(filename, data, _cb) {
   fs.open(filename, 'w', 666, function(err, d) {
     if(err) {
       return _cb(err);
     }
 
-    return fs.write(d, JSON.stringify(data), null, undefined, function(err, written) {
+    return fs.write(d, data, null, undefined, function(err, written) {
       if(err) {
         return _cb(err);
       }
@@ -27,6 +28,19 @@ function writeFileJSON(filename, data, _cb) {
       });
 
     });
+  });
+}
+
+function save(filename, data, _cb) {
+
+  fs.exists(resourcePath, function(exists){
+    if (!exists){
+      fs.mkdir(resourcePath, function(){
+        writeFile(filename, JSON.stringify(data), _cb);
+      });
+    } else{
+      writeFile(filename, JSON.stringify(data), _cb);
+    }
   });
 }
 
@@ -58,10 +72,10 @@ function HelloHandler() {
   this.AddUser('ocosmo', null,'http://ho.io/omsoc');
   */
 
-
   readFileJSON(resourceFile, function(e, d) {
     if(e) {
       console.log(e);
+      return;
     }
     that.data.specialUsers = d.specialUsers;
     that.data.greetings = d.greetings;
@@ -84,7 +98,7 @@ HelloHandler.prototype.AddUser = function(user, greeting, join){
     }
   }
 
-  writeFileJSON(resourceFile, this.data, function(e,d) {
+  save(resourceFile, this.data, function(e,d) {
     if(e) {
       console.log("Could not save file :( :" + e);
     }
@@ -99,7 +113,7 @@ HelloHandler.prototype.AddGreeting = function(greeting){
 
   this.data.greetings.push(greeting);
 
-  writeFileJSON(resourceFile, this.data, function(e,d) {
+  save(resourceFile, this.data, function(e,d) {
     if(e) {
       console.log("Could not save file :( :" + e);
     }
