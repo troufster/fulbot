@@ -1,5 +1,7 @@
 'use strict';
 var fs = require('fs');
+var Utils = require('../utils').Utils;
+
 var resourcePath = './resources/hello';
 var resourceFile = './resources/hello/hello.json';
 
@@ -50,6 +52,11 @@ function save(filename, data, _cb) {
   });
 }
 
+function Channel(name){
+  this.name = name;
+  this.specialUsers = [];
+  this.greetings = [];
+}
 
 function User(user, greeting, join){
   this.user = user;
@@ -68,15 +75,12 @@ function User(user, greeting, join){
 function HelloHandler() {
   var that = this;
   this.data = {};
+  this.data.channels = [];
+
+/*
   this.data.specialUsers = [];
   this.data.greetings = [];
-  /*
-  this.AddGreeting('%1 Allahu akhbar!!!11');
-  this.AddGreeting('%1, Konsultmässighet!');
-  this.AddGreeting('Woop woop! %1! DUB DUB DUB DUBBA DUB DUB');
-
-  this.AddUser('ocosmo', null,'http://ho.io/omsoc');
-  */
+*/
 
   readFileJSON(resourceFile, function(e, d) {
     if(e) {
@@ -86,18 +90,40 @@ function HelloHandler() {
     if (d === null) {
       return;
     }
-    that.data.specialUsers = d.specialUsers;
-    that.data.greetings = d.greetings;
+    that.data = d;
+
+    /* .specialUsers = d.specialUsers;
+    that.data.greetings = d.greetings;*/
   });
+
 }
 
-HelloHandler.prototype.AddUser = function(user, greeting, join){
-  var u = this.data.specialUsers.filter(function(elem){
+HelloHandler.prototype.getChannel =  function(name){
+  var chan = this.data.channels.filter(function(c){
+    return c.name === name;
+  });
+
+  if (chan.length === 0){
+    var c = new Channel(name)
+    this.data.channels.push(c);
+    return c;
+  }
+  else{
+    return chan[0];
+  }
+}
+
+
+HelloHandler.prototype.AddUser = function(channel, user, greeting, join){
+
+  var chan = this.getChannel(channel);
+
+  var u = chan.specialUsers.filter(function(elem){
     return elem.user === user;
   });
 
   if (u.length === 0){
-    this.data.specialUsers.push(new User(user, greeting, join));
+    chan.specialUsers.push(new User(user, greeting, join));
   } else{
     if (greeting !== null || greeting.length === 0) {
       u[0].greetings.push(greeting);
@@ -114,13 +140,14 @@ HelloHandler.prototype.AddUser = function(user, greeting, join){
   });
 };
 
-HelloHandler.prototype.AddGreeting = function(greeting){
+HelloHandler.prototype.AddGreeting = function(channel, greeting){
 
   if (greeting === undefined || greeting.length === 0) {
     return;
   }
 
-  this.data.greetings.push(greeting);
+  var chan = this.getChannel(channel);
+  chan.greetings.push(greeting);
 
   save(resourceFile, this.data, function(e,d) {
     if(e) {
@@ -129,9 +156,10 @@ HelloHandler.prototype.AddGreeting = function(greeting){
   });
 };
 
-HelloHandler.prototype.GetSentence = function(user){
+HelloHandler.prototype.GetSentence = function(channel, user){
 
-  var u = this.data.specialUsers.filter(function(e){
+  var chan = this.getChannel(channel);
+  var u = chan.specialUsers.filter(function(e){
     return e.user === user;
   });
 
@@ -139,11 +167,13 @@ HelloHandler.prototype.GetSentence = function(user){
     return u[0].greetings[Math.floor(Math.random() * u[0].greetings.length)].replace('%1',user);
   }
 
-  return this.data.greetings[Math.floor(Math.random() * this.data.greetings.length)].replace('%1',user);
+  return chan.greetings[Math.floor(Math.random() * chan.greetings.length)].replace('%1',user);
 };
 
-HelloHandler.prototype.Join = function(user){
-  var u = this.data.specialUsers.filter(function(e){
+HelloHandler.prototype.Join = function(channel, user){
+
+  var chan = this.getChannel(channel);
+  var u = chan.specialUsers.filter(function(e){
     return e.user === user;
   });
 
@@ -151,17 +181,38 @@ HelloHandler.prototype.Join = function(user){
     return u[0].joins[Math.floor(Math.random() * u[0].joins.length)].replace('%1',user);
   }
 
-  return ' ';
+  return null;
 };
+
+HelloHandler.prototype.Reset = function(channel){
+
+  if (this.data.channels !== undefined){
+    var chan = this.getChannel(channel);
+
+    chan.specialUsers = [];
+    chan.greetings = [];
+
+    this.AddUser(channel, 'ocosmo', null,'http://ho.io/omsoc');
+  } else {
+    this.data = {};
+    this.data.channels = [];
+  }
+
+  save(resourceFile, this.data, function(e,d) {
+    if(e) {
+      console.log("Could not save file :( :" + e);
+    }
+  });
+}
 
 var helloHandler = new HelloHandler();
 
 function sayHello(bot, from, to, message) {
-  bot.say(to, helloHandler.GetSentence(from));
+  bot.say(to, helloHandler.GetSentence(to, from));
 }
 
 function join(bot, chan, to, message){
-var m = helloHandler.Join(message.user);
+var m = helloHandler.Join(chan, message.nick);
 
   if (m !== null){
     bot.say(chan, m);
@@ -172,22 +223,31 @@ function config(bot, from, to, message){
 
   var parts = message.split(' ');
   var action = parts[1];
+  var channel = parts[2]
+
+  if (!Utils.isUserOperator(bot,channel, to)){
+    return;
+  }
 
   switch (action){
     case "user":
-      var user = parts[2];
-      var d = parts.slice(3,parts.length).join(' ').split('|');
+      var user = parts[3];
+      var d = parts.slice(4,parts.length).join(' ').split('|');
 
       if (d.length === 1){
-        helloHandler.AddUser(user, d[0],null);
+        helloHandler.AddUser(channel, user, d[0],null);
       } else {
-        helloHandler.AddUser(user, d[0],d[1]);
+        helloHandler.AddUser(channel, user, d[0],d[1]);
       }
 
       break;
     case "greeting":
-      helloHandler.AddGreeting(parts.slice(2,parts.length).join(' '));
+      helloHandler.AddGreeting(channel, parts.slice(3,parts.length).join(' '));
       break;
+    case "reset":
+      helloHandler.Reset(channel);
+      break;
+
   }
 
 
