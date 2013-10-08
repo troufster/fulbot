@@ -1,14 +1,14 @@
 var util = require('util');
 var fs = require("fs");
-var Utils = require('./utils').Utils;
+//var Utils = require('./utils').Utils;
 
 function Listener(bot) {
     this.listeners = [];
     this.commands = {};
-    this.utils =  new Utils();
+    //this.utils =  new Utils();
 
     this.bot = bot;
-    this.utils.init(bot);
+    //this.utils.init(bot);
     this.routes= {};
 
     var that = this;
@@ -20,10 +20,10 @@ function Listener(bot) {
         that.mapRoutes(function(err, _cb) {
 
             //Register main listener
-            bot.addListener("message", function(from, to, message) {
+            that.bot.addListener("message", function(from, to, message) {
                 that.checkListeners(from, to, message);
             });
-            bot.addListener("join", function(from, to, message) {
+            that.bot.addListener("join", function(from, to, message) {
                that.checkCommandListeners(from, to, message);
             });
 
@@ -129,11 +129,11 @@ Listener.prototype.loadPlugins  = function(_cb) {
 
 Listener.prototype.checkListeners =function(from, to, message) {
 
-    if(!this.utils.canSpeak(to)) return;
+    if(!this.bot.canSpeak(to)) {return;}
 
     var routes = this.routes;
     var bot = this.bot;
-    var tochan = Utils.isChanMessage(to);
+    var tochan = bot.isChanMessage(to);
 
     //Command?
     if(!tochan && message.match(/^\./i)) {
@@ -165,7 +165,7 @@ Listener.prototype.checkCommandListeners = function(from, to, message){
   //message.nick
 
   if (to === this.bot.nick ) {return;}
-  if(!this.utils.canSpeak(from)) {return;}
+  if(!this.bot.canSpeak(from)) {return;}
 
   var routes = this.routes;
   var bot = this.bot;

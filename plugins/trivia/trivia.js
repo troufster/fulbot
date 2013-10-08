@@ -4,7 +4,7 @@ var fs = require("fs");
 
 var Questions = require('./questions.js');
 var Users = require('./users.js');
-var Utils = require('./../../utils.js').Utils;
+//var Utils = require('./../../utils.js').Utils;
 
 function Trivia(b, c){
   var bot = b;
@@ -25,8 +25,8 @@ function Trivia(b, c){
 
 
   var running = false;
-  var utils = new Utils();
-  utils.init(bot);
+  //var utils = new Utils();
+  //utils.init(bot);
 
   /* privates */
   var removeTimeouts = function(){

@@ -62,7 +62,7 @@ function parseSpotify(uri, _cb){
 
 function parseUrl(bot, from, to, message){
 
-  var _url =  message.match(/(?:(?:(?:https?:\/\/)|(?:www\.))(?:(?:[-\w/_\.]*(?:\?\S+))))|(?:spotify:(?:track|album|artist):(?:[a-zA-Z0-9]{22}))/i);
+  var _url =  message.match(/(?:(?:(?:https?:\/\/)|(?:www\.))(?:(?:[-\w/_\.]*(?:\?\S+)?))?)|(?:spotify:(?:track|album|artist):(?:[a-zA-Z0-9]{22}))/i);
 
   if (_url === null){return;}
 
@@ -72,8 +72,11 @@ function parseUrl(bot, from, to, message){
   if (url.match(/(https?:\/\/)?(www\.)?youtube\.com\/watch\?v/)){
     var youtube_id = url.match(/\?v=([\w-]{11})/);
 
+    if (youtube_id === null){
+      return;
+    }
     parseYoutube(youtube_id[1], function(err, d) {
-      if(err)return;
+      if(err) {return;}
       for(var i = subscribers.length-1;i >= 0;i--){
         bot.notice(subscribers[i],d);
       }
@@ -116,7 +119,7 @@ function subscribeUser(bot, from, to, message){
 exports.listeners = function(){
   return [{
     name : 'Url Parser',
-    match : /((https?:\/\/)|(www\.))(([-\w/_\.]*(\?\S+)?)?)?|(spotify:(track|album|artist):([a-zA-Z0-9]{22}))/i,
+    match : /(?:(?:(?:https?:\/\/)|(?:www\.))(?:(?:[-\w/_\.]*(?:\?\S+)?))?)|(?:spotify:(?:track|album|artist):(?:[a-zA-Z0-9]{22}))/i,
     func : parseUrl,
     listen : ["#botdev"]
   },

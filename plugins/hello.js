@@ -1,6 +1,6 @@
 'use strict';
 var fs = require('fs');
-var Utils = require('../utils').Utils;
+//var Utils = require('../utils').Utils;
 
 var resourcePath = './resources/hello';
 var resourceFile = './resources/hello/hello.json';
@@ -225,7 +225,7 @@ function config(bot, from, to, message){
   var action = parts[1];
   var channel = parts[2]
 
-  if (!Utils.isUserOperator(bot,channel, to)){
+  if (!bot.isUserOperator(channel, to)){
     return;
   }
 

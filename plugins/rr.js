@@ -1,8 +1,8 @@
 var util = require('util');
-var Utils = require('../utils').Utils;
+//var Utils = require('../utils').Utils;
 
 function doRussianRoulette(bot, from, to, message) {
-  var isChan = Utils.isChanMessage(to);
+  var isChan = bot.isChanMessage(to);
 
   var autoboom = false;
 
@@ -11,15 +11,15 @@ function doRussianRoulette(bot, from, to, message) {
     user = message.split(' ')[1];
   }
 
-  if(user !== "" && Utils.isUserOperator(bot, to, user)) {
+  if(user !== "" && bot.isUserOperator(to, user)) {
     return;
-  } else if (user !== "" && !Utils.isUserOperator(bot, to, from)) {
+  } else if (user !== "" && !bot.isUserOperator(to, from)) {
     user = from;
     autoboom = true;
-  } else if (user === "" && !Utils.isUserOperator(bot, to, from)) return;
+  } else if (user === "" && !bot.isUserOperator(to, from)) return;
 
-  if(isChan && Utils.isUserOperator(bot, to, bot.nick)) {
-    var users = Utils.userList(bot, to);
+  if(isChan && bot.isUserOperator(to, bot.nick)) {
+    var users = bot.userList(to);
 
     var ua = Object.keys(users);
 
