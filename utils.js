@@ -29,4 +29,4 @@ var Utils = function (){
   return this;
 };
 
-module.exports.Utils = Utils;
+module.exports = {Utils: Utils};

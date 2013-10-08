@@ -1,11 +1,14 @@
 "use strict";
 var fs = require("fs");
+//var Utils = require('./utils').Utils;
 
 function Listener(bot) {
     this.listeners = [];
     this.commands = {};
+    //this.utils =  new Utils();
 
     this.bot = bot;
+    //this.utils.init(bot);
     this.routes= {};
 
     var that = this;
