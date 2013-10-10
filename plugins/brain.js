@@ -6,6 +6,8 @@ function trimstr(str) {
     return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 }
 
+/*
+
 function readFileJSON(filename, _cb) {
 		fs.readFile(filename, function(e, d) {
 			if (e) {
@@ -34,6 +36,8 @@ function writeFileJSON(filename, data, _cb) {
 		});
 	});
 }
+
+*/
 
 function setCharAt(str,index,chr) {
     if(index > str.length-1) {
@@ -194,10 +198,12 @@ MarkovBrain.prototype.learn = function(data) {
 
 };
 
+require('../resourcemanager.js').ResourceManager.call(MarkovBrain.prototype);
+
 var s = new MarkovBrain();
 
 
-readFileJSON('./resources/brain/brain.json', function(e, d) {
+s.load('/brain','brain.json', function(e, d) {
 	if(e) throw e;
 	s._root = d;
 	dosave();
@@ -207,7 +213,7 @@ readFileJSON('./resources/brain/brain.json', function(e, d) {
 //Brain save
 function dosave() {
 setInterval(function() {
-	writeFileJSON('./resources/brain/brain.json', s._root, function(e,d) {
+	s.save('brain','brain.json', s._root, function(e,d) {
 		if(e) {
 			return console.log("Could not save brain :( :" + e);
 		}
@@ -292,12 +298,14 @@ exports.listeners = function (){ return [{
     name : "!brain listener",
     match : /^!brain/i,
     func : brain,
-    listen : ["#sogeti","#games","#botdev", "#ordvits"]
+    //listen : ["#sogeti","#games","#botdev", "#ordvits"]
+    listen : ["#botdev"]
   },{
     name : "spam listener",
     match : /(.*)/i,
     func : spam,
-    listen : ["#sogeti","#games","#botdev",, "priv"]
+    //listen : ["#sogeti","#games","#botdev",, "priv"]
+    listen : ["#botdev", "priv"]
   }];
   
 };

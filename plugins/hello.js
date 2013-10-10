@@ -1,56 +1,11 @@
-'use strict';
+"use strict";
 var fs = require('fs');
-//var Utils = require('../utils').Utils;
+var rm = require('./../resourceManager.js').ResourceManager;
 
-var resourcePath = './resources/hello';
-var resourceFile = './resources/hello/hello.json';
 
-function readFileJSON(filename, _cb) {
-  fs.readFile(filename, function(e, d) {
-    if (e) {
-      return _cb(e);
-    }
-    try{
-      return _cb(null, JSON.parse(d.toString()));
-    }
-    catch(e){
-      console.log(e);
-    }
-    return _cb(null, null);
-  });
-}
+var resourceFile = 'hello.json';
 
-function writeFile(filename, data, _cb) {
-  fs.open(filename, 'w', 666, function(err, d) {
-    if(err) {
-      return _cb(err);
-    }
 
-    return fs.write(d, data, null, undefined, function(err, written) {
-      if(err) {
-        return _cb(err);
-      }
-
-      fs.close(d,function(){
-        return _cb(null, written);
-      });
-
-    });
-  });
-}
-
-function save(filename, data, _cb) {
-
-  fs.exists(resourcePath, function(exists){
-    if (!exists){
-      fs.mkdir(resourcePath, function(){
-        writeFile(filename, JSON.stringify(data), _cb);
-      });
-    } else{
-      writeFile(filename, JSON.stringify(data), _cb);
-    }
-  });
-}
 
 function Channel(name){
   this.name = name;
@@ -82,7 +37,7 @@ function HelloHandler() {
   this.data.greetings = [];
 */
 
-  readFileJSON(resourceFile, function(e, d) {
+  this.load('hello', resourceFile, function(e, d) {
     if(e) {
       console.log(e);
       return;
@@ -95,8 +50,11 @@ function HelloHandler() {
     /* .specialUsers = d.specialUsers;
     that.data.greetings = d.greetings;*/
   });
-
 }
+
+//mixin;
+rm.call(HelloHandler.prototype);
+
 
 HelloHandler.prototype.getChannel =  function(name){
   var chan = this.data.channels.filter(function(c){
@@ -104,14 +62,14 @@ HelloHandler.prototype.getChannel =  function(name){
   });
 
   if (chan.length === 0){
-    var c = new Channel(name)
+    var c = new Channel(name);
     this.data.channels.push(c);
     return c;
   }
   else{
     return chan[0];
   }
-}
+};
 
 
 HelloHandler.prototype.AddUser = function(channel, user, greeting, join){
@@ -133,7 +91,7 @@ HelloHandler.prototype.AddUser = function(channel, user, greeting, join){
     }
   }
 
-  save(resourceFile, this.data, function(e,d) {
+  this.save('hello', resourceFile, this.data, function(e) {
     if(e) {
       console.log("Could not save file :( :" + e);
     }
@@ -149,7 +107,7 @@ HelloHandler.prototype.AddGreeting = function(channel, greeting){
   var chan = this.getChannel(channel);
   chan.greetings.push(greeting);
 
-  save(resourceFile, this.data, function(e,d) {
+  this.save('hello', resourceFile, this.data, function(e) {
     if(e) {
       console.log("Could not save file :( :" + e);
     }
@@ -170,6 +128,9 @@ HelloHandler.prototype.GetSentence = function(channel, user){
   return chan.greetings[Math.floor(Math.random() * chan.greetings.length)].replace('%1',user);
 };
 
+/**
+ * @return {null}
+ */
 HelloHandler.prototype.Join = function(channel, user){
 
   var chan = this.getChannel(channel);
@@ -198,16 +159,16 @@ HelloHandler.prototype.Reset = function(channel){
     this.data.channels = [];
   }
 
-  save(resourceFile, this.data, function(e,d) {
+  this.save('hello', resourceFile, this.data, function(e) {
     if(e) {
       console.log("Could not save file :( :" + e);
     }
   });
-}
+};
 
 var helloHandler = new HelloHandler();
 
-function sayHello(bot, from, to, message) {
+function sayHello(bot, from, to) {
   bot.say(to, helloHandler.GetSentence(to, from));
 }
 
@@ -223,11 +184,12 @@ function config(bot, from, to, message){
 
   var parts = message.split(' ');
   var action = parts[1];
-  var channel = parts[2]
+  var channel = parts[2];
 
+  /*
   if (!bot.isUserOperator(channel, to)){
     return;
-  }
+  }*/
 
   switch (action){
     case "user":
