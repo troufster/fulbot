@@ -6,39 +6,6 @@ function trimstr(str) {
     return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
 }
 
-/*
-
-function readFileJSON(filename, _cb) {
-		fs.readFile(filename, function(e, d) {
-			if (e) {
-        return _cb(e);
-      }
-			return _cb(null, JSON.parse(d.toString()));
-		});
-}
-
-function writeFileJSON(filename, data, _cb) {
-	fs.open(filename, 'w', 0x0666, function(err, d) {
-		if(err) {
-    			return _cb(err);
-		}
-    		
-
-		return fs.write(d, JSON.stringify(data), null, undefined, function(err, written) {
-			if(err) {
-        			return _cb(err);
-			}
-			
-			fs.close(d,function(){      				
-      				return _cb(null, written);
-    			});
-			
-		});
-	});
-}
-
-*/
-
 function setCharAt(str,index,chr) {
     if(index > str.length-1) {
       return str;
@@ -46,11 +13,11 @@ function setCharAt(str,index,chr) {
     return str.substr(0,index) + chr + str.substr(index+1);
 }
 
-function filterMessage(message, bot) {
+function filterMessage(message) {
   message = message.toLowerCase();
 
   //remove garbage
-  message = message.replace(/\"/g, "");
+  message = message.replace(/"/g, "");
   message = message.replace(/'/g, "");
   message = message.replace('\n', '');
   message = message.replace('\r', '');
@@ -61,10 +28,14 @@ function filterMessage(message, bot) {
 
   while (true){
 
-    if(index >= message.length) break;
+    if(index >= message.length) {
+      break;
+    }
     index = message.indexOf("(", index);
     var i = message.indexOf(")", index+1);
-    if(index <=0) break;
+    if(index <=0) {
+      break;
+    }
 
     message = setCharAt(message, index, "");
     message = setCharAt(message, i-1, "");
@@ -92,7 +63,7 @@ function MarkovBrain() {
 	this.learning = true;
 	this.spamchance = 8;
 	
-	this.noendwords = ['att', 'och', 'med'];
+	//this.noendwords = ['att', 'och', 'med'];
 }
 
 MarkovBrain.rnd = function(ceil) {
@@ -111,11 +82,13 @@ MarkovBrain.prototype.random = function() {
 MarkovBrain.prototype.reply = function(source, depth) {	var reply = [];
 		
 	//Try to choose a word pair from the source
-	var randomly
+	var randomly;
 	var asource = source.split(' ');
 		
 	var rsource = MarkovBrain.rnd(asource.length);
-	if(rsource >= asource.length-1) rsource = asource.length-2;		
+	if(rsource >= asource.length-1) {
+    rsource = asource.length-2;
+  }
 	var rpick = asource[rsource] + ' ' + asource[rsource+1];
 	rpick = rpick.toLowerCase();	
 		
@@ -140,7 +113,6 @@ MarkovBrain.prototype.reply = function(source, depth) {	var reply = [];
 			
 			reply.push(val);
 			randomly = ['', randomly[2], val];
-			continue;
 		} else {
 			randomly = this.random();
 			reply.push(randomly[0]);
@@ -188,7 +160,7 @@ MarkovBrain.prototype.learn = function(data) {
     if(value.length > 0 && value !== undefined) {
 
       //Only add if value doesn't already exist derp
-      if(this._root[segment].indexOf(value) == -1) {
+      if(this._root[segment].indexOf(value) === -1) {
         this._root[segment].push(value);
       }
     }
@@ -198,24 +170,27 @@ MarkovBrain.prototype.learn = function(data) {
 
 };
 
-require('../resourcemanager.js').ResourceManager.call(MarkovBrain.prototype);
+require('../resourceManager.js').ResourceManager.call(MarkovBrain.prototype);
 
 var s = new MarkovBrain();
 
 
 s.load('/brain','brain.json', function(e, d) {
-	if(e) throw e;
+	if(e) {
+    throw e;
+  }
 	s._root = d;
-	dosave();
+	doSave();
 });
 
 
 //Brain save
-function dosave() {
+function doSave() {
 setInterval(function() {
-	s.save('brain','brain.json', s._root, function(e,d) {
+	s.save('brain','brain.json', s._root, function(e) {
 		if(e) {
-			return console.log("Could not save brain :( :" + e);
+			console.log("Could not save brain :( :" + e);
+      return;
 		}
 		console.log("Brain saved...");
 	});
@@ -252,16 +227,13 @@ function brain(bot, from, to, message) {
 			bot.say(to, vals ? vals.join('|') : "No such root");
 			break;
 		case "spam":
-			var val = parseInt(parts[2]);
+			var val = parseInt(parts[2],10);
 			if(!isNaN(parseFloat(val)) && isFinite(val)) {
 				s.spamchance = val;
 				bot.say(to, "Spamlevel set to : " + s.spamchance);
 			}
-			
-		
 	}
-		
-};
+}
 
 function spam(bot, from, to, message) {
 
@@ -293,21 +265,20 @@ function spam(bot, from, to, message) {
 	if(message.toLowerCase().indexOf(bot.nick.toLowerCase()) > -1) {
 		bot.say(to, s.reply(message, MarkovBrain.rnd(10)));
 	}
-};
+}
+
 exports.listeners = function (){ return [{
     name : "!brain listener",
     match : /^!brain/i,
     func : brain,
-    //listen : ["#sogeti","#games","#botdev", "#ordvits"]
-    listen : ["#botdev"]
+    listen : ["#sogeti","#games","#botdev", "#ordvits"]
+
   },{
     name : "spam listener",
     match : /(.*)/i,
     func : spam,
-    //listen : ["#sogeti","#games","#botdev",, "priv"]
-    listen : ["#botdev", "priv"]
+    listen : ["#sogeti","#games","#botdev", "priv"]
   }];
-  
 };
 
 

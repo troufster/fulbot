@@ -1,7 +1,6 @@
 "use strict";
-var http = require('http'),
-fs = require('fs'),
-util = require('util'),
+
+var fs = require('fs'),
 Admin = require("./buertz/buertzAdmin.js");
 
 var buertzList = "./resources/buertz/Öl.txt";
@@ -152,7 +151,13 @@ function hangman(cb){
   });
 }
 
-function sayBeer (bot, from, to, message)
+
+
+var Buertz = function(){
+
+};
+
+Buertz.prototype.sayBeer = function(bot, from, to, message)
 {
   var parts = message.split(" ");
   var command = parts[1];
@@ -199,13 +204,15 @@ function sayBeer (bot, from, to, message)
       break;
   }
 
-}
+};
+
+var buertz = new Buertz();
 
 exports.listeners = function(){
   return [{
     name : 'Buertz',
-    match : /^\!buertz/i,
-    func : sayBeer,
-    listen : ["#sogeti", "priv"]
+    match : /^!buertz/i,
+    func : buertz.sayBeer,
+    listen : ["#botdev", "priv"]
   }];
 };
