@@ -1,11 +1,9 @@
 "use strict";
-var fs = require('fs');
-var rm = require('./../resourceManager.js').ResourceManager;
-
+var
+  fs = require('fs'),
+  configMixin = require('../resourceManager.js').mixin;
 
 var resourceFile = 'hello.json';
-
-
 
 function Channel(name){
   this.name = name;
@@ -53,7 +51,7 @@ function HelloHandler() {
 }
 
 //mixin;
-rm.call(HelloHandler.prototype);
+configMixin(HelloHandler);
 
 
 HelloHandler.prototype.getChannel =  function(name){

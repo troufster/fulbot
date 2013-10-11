@@ -1,6 +1,8 @@
 'use strict';
+var
+  fs = require('fs'),
+  configMixin = require('../resourceManager.js').mixin;
 
-var fs = require('fs');
 
 function trimstr(str) {
     return str.replace(/^\s\s*/, '').replace(/\s\s*$/, '');
@@ -170,7 +172,7 @@ MarkovBrain.prototype.learn = function(data) {
 
 };
 
-require('../resourceManager.js').ResourceManager.call(MarkovBrain.prototype);
+configMixin(MarkovBrain);
 
 var s = new MarkovBrain();
 

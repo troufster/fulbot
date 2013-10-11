@@ -1,25 +1,24 @@
 "use strict";
 var fs = require('fs');
 
-var ResourceManager = function () {
 
+
+var ResourceManager = function(){
   var resourcePath = './resources/';
-
-  /* privates */
 
   function writeFile(filename, data, _cb) {
     fs.open(filename, 'w', 666, function(err, d) {
       if(err) {
-        return _cb(err);
+        _cb(err);
       }
 
       return fs.write(d, data, null, undefined, function(err, written) {
         if(err) {
-          return _cb(err);
+          _cb(err);
         }
 
         fs.close(d,function(){
-          return _cb(null, written);
+          _cb(null, written);
         });
 
       });
@@ -35,11 +34,12 @@ var ResourceManager = function () {
         _cb(null, JSON.parse(d.toString()));
       }
       catch(e){
-       _cb(e);
+        _cb(e);
       }
     });
   }
 
+  /* privates */
   this.load = function (plugin, fn, _cb) {
     var path = resourcePath + plugin;
     var filename = path + '/' + fn;
@@ -72,7 +72,6 @@ var ResourceManager = function () {
   return this;
 };
 
-
-module.exports = {
-  ResourceManager: ResourceManager
+module.exports.mixin = function(destination) {
+  ResourceManager.call(destination.prototype);
 };

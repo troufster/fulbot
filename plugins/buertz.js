@@ -1,23 +1,20 @@
 /* jshint node: true */
 "use strict";
-
 var fs = require('fs'),
-Admin = require("./buertz/buertzAdmin.js");
+Admin = require("./buertz/buertzAdmin.js"),
+configMixin = require('../resourceManager.js').mixin;
 
-var buertzList = "./resources/buertz/Öl.txt";
+var buertzList = 'Öl.txt';
 
 var admin = null;
 
-
-
-
-
-var Buertz = function(){
+function Buertz (){
+  var self = this;
   var buertzors = [];
 
   function randomBuertz(cb, ftr, filterparameters) {
     if (buertzors.length === 0){
-      init(cb);
+      refresh(cb);
       cb(null, 'inga buertz än, vänta nån sekund...');
       return;
     }
@@ -68,63 +65,54 @@ var Buertz = function(){
       });
     }
     admin.refresh(cb);
-
   }
 
   function load(cb){
-    fs.readFile(buertzList, function (err, data) {
+    self.load('buertz', buertzList, function (err, data) {
       if (err) {
         throw err;
       }
-      buertzors = JSON.parse(data);
+      buertzors = data;
       cb(null,'nu finns det buertz');
     });
   }
 
-  function init(cb){
-    fs.exists(buertzList, function (exists) {
-      if(exists){
-        load(cb);
-      }
-      else {
-        refresh(cb);
-      }
-    });
-  }
+
 
   function info(cb,name){
     if (buertzors.length === 0){
-      init(cb);
+      refresh(cb);
       cb(null, 'inga buertz än, vänta nån sekund...');
       return;
     }
 
-    var buertz =  buertzors.filter(
+    name = name.toLowerCase();
+    var b =  buertzors.filter(
       function (element) {
         return (element.Namn[0].toLowerCase().indexOf(name) > -1 );
       }
     );
     var data = "";
 
-    if (buertz.length === 1) {
-      for (var i = buertz.length -1; i>=0;i--) {
+    if (b.length === 1) {
+      for (var i = b.length -1; i>=0;i--) {
         if (data !== "" ) {
           data += "\n";
         }
-        data += buertz[i].Namn + ' ' + (typeof buertz[i].Namn2[0] === "string" ? buertz[i].Namn2[0] : '')  ;
-        data += '\n  Alkohol halt: ' + buertz[i].Alkoholhalt ;
-        data += '\n  Typ     : ' + buertz[i].Varugrupp[0].substr(4);
-        data += '\n  Pris    : ' + buertz[i].Prisinklmoms[0].substr(0,buertz[i].Prisinklmoms[0].length -1);
-        data += '\n  nr      : ' + buertz[i].Varnummer;
-        data += '\n  Förpackning : ' + buertz[i].Volymiml + 'ml ' + buertz[i].Forpackning;
-        data += '\n  Producent   : ' + buertz[i].Producent;
-        data += '\n  Leverantör  : ' + buertz[i].Leverantor;
-        data += '\n  Sälj start  : ' + buertz[i].Saljstart;
+        data += b[i].Namn + ' ' + (typeof b[i].Namn2[0] === "string" ? b[i].Namn2[0] : '')  ;
+        data += '\n  Alkohol halt: ' + b[i].Alkoholhalt ;
+        data += '\n  Typ     : ' + b[i].Varugrupp[0].substr(4);
+        data += '\n  Pris    : ' + b[i].Prisinklmoms[0].substr(0,b[i].Prisinklmoms[0].length -1);
+        data += '\n  nr      : ' + b[i].Varnummer;
+        data += '\n  Förpackning : ' + b[i].Volymiml + 'ml ' + b[i].Forpackning;
+        data += '\n  Producent   : ' + b[i].Producent;
+        data += '\n  Leverantör  : ' + b[i].Leverantor;
+        data += '\n  Sälj start  : ' + b[i].Saljstart;
       }
       cb(null,data);
-    } else if(buertz.length > 1){
-      for (var n = buertz.length -1; n>=0;n--){
-        data += buertz[n].Namn + ' ' + (typeof buertz[n].Namn2[0] === "string" ? buertz[n].Namn2[0] : '') + '\n' ;
+    } else if(b.length > 1){
+      for (var n = b.length -1; n>=0;n--){
+        data += b[n].Namn + ' ' + (typeof b[n].Namn2[0] === "string" ? b[n].Namn2[0] : '') + '\n' ;
       }
       cb(null,data);
     }
@@ -168,37 +156,39 @@ var Buertz = function(){
       if(err) {
         throw err ;
       }
-
       bot.say(to, d);
     };
+
+    var callbackPriv = function(err, d) {
+      if(err) {
+        throw err ;
+      }
+      bot.say(from, d);
+    };
+
 
     switch(command) {
 
       case "refresh":
-        this.refresh(callback);
+        refresh(callback);
         break;
       case "info":
-        this.info(function(err, d) {
-          if(err){
-            throw err;
-          }
-          bot.say(from, d);
-        }, rest);
+        info(callbackPriv, rest);
         break;
       case "hangman":
-        this.hangman(callback);
+        hangman(callback);
         break;
       case "help":
-        callback(null,'!BUERTZ!');
-        callback(null,'utan command slumpas 5 öl, ange en siffra för alkohol halten som skall överstigas...');
-        callback(null,'BUERTZ commands: ');
-        callback(null,'   refresh: Hämtar ny lista för tornby från systemets hemsida. ');
-        callback(null,'   info [namn]: Ger extra info om ölet. [namn] = namnet.');
-        callback(null,'        Systemet hanterar dock 2 fält, så får man ingen träff på:');
-        callback(null,'           !buertz info Paulaner Münchener Hell');
-        callback(null,'        borde man söka på: ');
-        callback(null,'           !buertz info Paulaner');
-        callback(null,'!BUERTZ!');
+        callbackPriv(null,'!BUERTZ!');
+        callbackPriv(null,'utan command slumpas 5 öl, ange en siffra för alkohol halten som skall överstigas...');
+        callbackPriv(null,'BUERTZ commands: ');
+        callbackPriv(null,'   refresh: Hämtar ny lista för tornby från systemets hemsida. ');
+        callbackPriv(null,'   info [namn]: Ger extra info om ölet. [namn] = namnet.');
+        callbackPriv(null,'        Systemet hanterar dock 2 fält, så får man ingen träff på:');
+        callbackPriv(null,'           !buertz info Paulaner Münchener Hell');
+        callbackPriv(null,'        borde man söka på: ');
+        callbackPriv(null,'           !buertz info Paulaner');
+        callbackPriv(null,'!BUERTZ!');
         break;
       default :
         randomBuertz(callback, command, rest);
@@ -206,12 +196,14 @@ var Buertz = function(){
     }
 
   };
+}
 
-
-};
-
+configMixin(Buertz);
 
 var buertz = new Buertz();
+
+
+
 
 exports.listeners = function(){
   return [{
