@@ -4,6 +4,7 @@ var fs = require('fs'),
 Admin = require("./buertz/buertzAdmin.js"),
 configMixin = require('../resourceManager.js').mixin;
 
+
 var buertzList = 'Öl.txt';
 
 var admin = null;
@@ -152,6 +153,7 @@ function Buertz (){
     var command = parts[1];
     var rest = parts.slice(2,parts.length).join(" ");
 
+
     var callback = function(err, d) {
       if(err) {
         throw err ;
@@ -201,9 +203,6 @@ function Buertz (){
 configMixin(Buertz);
 
 var buertz = new Buertz();
-
-
-
 
 exports.listeners = function(){
   return [{
