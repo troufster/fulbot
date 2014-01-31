@@ -116,17 +116,30 @@ function subscribeUser(bot, from, to, message){
   }
 }
 
+function unsubscribeUser(bot, from, to, message){
+  var index = subscribers.indexOf(from);
+  if (index > -1){
+    subscribers.splice(index,1);
+  }
+}
+
 exports.listeners = function(){
   return [{
     name : 'Url Parser',
     match : /(?:(?:(?:https?:\/\/)|(?:www\.))(?:(?:[-\w/_\.]*(?:\?\S+)?))?)|(?:spotify:(?:track|album|artist):(?:[a-zA-Z0-9]{22}))/i,
     func : parseUrl,
-    listen : ["#botdev"]
+    listen : ["#botdev","#sogeti"]
   },
     {
     name: 'Url - subscribe',
-    match: /^!subscribe*/,
+    match: /^!urlreg*/,
     func: subscribeUser,
-    listen: ["#botdev", "priv"]
-  }];
+    listen: ["#botdev","#sogeti", "priv"]
+  },
+    {
+      name: 'Url - unsubscribe',
+      match: /^!urlunreg*/,
+      func: unsubscribeUser,
+      listen: ["#botdev","#sogeti", "priv"]
+    }];
 };
