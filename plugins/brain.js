@@ -86,7 +86,7 @@ function filterMessage(message, bot) {
 function MarkovBrain() {	
 	this._root = {};
 	this.learning = true;
-	this.spamchance = 8;
+	this.spamchance = -1;
 	
 	this.noendwords = ['att', 'och', 'med'];
 }
