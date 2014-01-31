@@ -61,8 +61,8 @@ function parseSpotify(uri, _cb){
 
 
 function parseUrl(bot, from, to, message){
-
-  var _url =  message.match(/(?:(?:(?:https?:\/\/)|(?:www\.))(?:(?:[-\w/_\.]*(?:\?\S+)?))?)|(?:spotify:(?:track|album|artist):(?:[a-zA-Z0-9]{22}))/i);
+  /* /(?:(?:(?:https?:\/\/)|(?:www\.))(?:(?:[-\w/_\.]*(?:\?\S+))))|(?:spotify:(?:track|album|artist):(?:[a-zA-Z0-9]{22}))/i*/
+  var _url =  message.match(/((https?:\/\/)|(www\.))(([-\w/_\.]*(\?\S+)?)?)?|(spotify:(track|album|artist):([a-zA-Z0-9]{22}))/i);
 
   if (_url === null){return;}
 
