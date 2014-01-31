@@ -50,7 +50,13 @@ function parseSpotify(uri, _cb){
       })
       .on('end',function(){
           var n = JSON.parse(data);
-          _cb(null, n.track.name + "-" + n.track.artists[0].name );
+         if (n.album !== undefined){
+           _cb(null, n.album.name + " - " + n.album.artist );
+         } else if (n.track === undefined) {
+           _cb(null, n.artist.name );
+         } else {
+          _cb(null, n.track.name + " - " + n.track.artists[0].name );
+         }
       });
   }).on('error', function(e) {
       _cb(e, null);
@@ -68,43 +74,40 @@ function parseUrl(bot, from, to, message){
 
   var url = _url[0];
 
-
+  var ua = Object.keys(bot.chans[to].users);
   if (url.match(/(https?:\/\/)?(www\.)?youtube\.com\/watch\?v/)){
     var youtube_id = url.match(/\?v=([\w-]{11})/);
 
     parseYoutube(youtube_id[1], function(err, d) {
-      if(err)return;
-      for(var i = subscribers.length-1;i >= 0;i--){
-        bot.notice(subscribers[i],d);
-      }
+      out(err,d,bot,ua);
     });
 
   } else if (url.indexOf('open.spotify.com') > -1 ) {
     //http://open.spotify.com/track/66yFvHn4fQRMic2e2uljTJ
     var r = url.split('/');
+    var uri = "spotify:" +  r[r.length-2] + ":" + r[r.length-1] ;
 
-    if (r[r.length-2] == "track") {
-      var uri = "spotify:" +  r[r.length-2] + ":" + r[r.length-1] ;
+    parseSpotify(uri, function(err, d) {
+      out(err,d,bot,ua);
+    });
 
-      parseSpotify(uri, function(err, d) {
-        if(err)return;
-        for(var i = subscribers.length-1;i >= 0;i--){
-          bot.notice(subscribers[i],d);
-        }
-      });
-    }
-
-  } else if (url.match(/spotify:(track):([a-zA-Z0-9]{22})/i)) {  /*|album|artist*/
+  } else if (url.match(/spotify:(track|album|artist):([a-zA-Z0-9]{22})/i)) {  /**/
     //spotify:track:66yFvHn4fQRMic2e2uljTJ
 
       parseSpotify(url, function(err, d) {
-        if(err)return;
-        for(var i = subscribers.length-1;i >= 0;i--){
-          bot.notice(subscribers[i],d);
-        }
+        out(err,d,bot,ua);
       });
   }
 
+}
+
+function out(err,d,bot,ua){
+  if(err)return;
+  for(var i = subscribers.length-1;i >= 0;i--){
+    if (ua.indexOf(subscribers[i]) > -1){
+      bot.notice(subscribers[i],d);
+    }
+  }
 }
 
 function subscribeUser(bot, from, to, message){
