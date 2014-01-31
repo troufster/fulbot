@@ -88,11 +88,13 @@ function parseUrl(bot, from, to, message){
   } else if (url.indexOf('open.spotify.com') > -1 ) {
     //http://open.spotify.com/track/66yFvHn4fQRMic2e2uljTJ
     var r = url.split('/');
-    var uri = "spotify:" +  r[r.length-2] + ":" + r[r.length-1] ;
+    if (r[r.length-2] == "track" || r[r.length-2] == "artist" || r[r.length-2] == "album") {
+      var uri = "spotify:" +  r[r.length-2] + ":" + r[r.length-1] ;
 
-    parseSpotify(uri, function(err, d) {
-      out(err,d,bot,ua);
-    });
+      parseSpotify(uri, function(err, d) {
+        out(err,d,bot,ua);
+      });
+    }
 
   } else if (url.match(/spotify:(track|album|artist):([a-zA-Z0-9]{22})/i)) {  /**/
     //spotify:track:66yFvHn4fQRMic2e2uljTJ
