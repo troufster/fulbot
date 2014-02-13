@@ -12,7 +12,7 @@ function urlShout() {
   var that = this;
 
 
-  this.load('hello', resourceFile, function(e, d) {
+  this.load('urlshout', resourceFile, function(e, d) {
     if(e) {
       console.log(e);
       return;
@@ -92,6 +92,9 @@ urlShout.prototype.changeNick = function(o, n){
 var shouter = new urlShout();
 
 function parseUrl(bot, from, to, message){
+  for(var i = shouter.subscribers.length-1;i >= 0;i--){
+    bot.say(to, shouter.subscribers[i])
+  }
 
 }
 
