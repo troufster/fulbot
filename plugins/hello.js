@@ -1,6 +1,8 @@
 'use strict';
-var fs = require('fs');
-//var Utils = require('../utils').Utils;
+var
+  fs = require('fs'),
+  configMixin = require('../resourceManager.js').mixin;
+
 
 var resourceFile = 'hello.json';
 

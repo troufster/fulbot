@@ -26,7 +26,9 @@ function Listener(bot) {
             that.bot.addListener("join", function(from, to, message) {
                that.checkCommandListeners(from, to, message);
             });
-
+            that.bot.addListener("nick", function(from, to, channels, message) {
+              that.checkCommandListeners(from, to, message, channels[0]);
+            });
         });
     });
 
@@ -164,7 +166,7 @@ Listener.prototype.checkListeners =function(from, to, message) {
 
 };
 
-Listener.prototype.checkCommandListeners = function(from, to, message){
+Listener.prototype.checkCommandListeners = function(from, to, message, channel){
   //message.command
   //message.nick
 
@@ -176,6 +178,9 @@ Listener.prototype.checkCommandListeners = function(from, to, message){
 
   var route = routes[from];
 
+  if (!route && channel !== undefined) {
+    route = routes[channel];
+  }
   //Exec route
   if(!route) {return;}
 

@@ -4,7 +4,6 @@ var fs = require('fs'),
 Admin = require("./buertz/buertzAdmin.js"),
 configMixin = require('../resourceManager.js').mixin;
 
-
 var buertzList = 'Öl.txt';
 
 var admin = null;
