@@ -25,9 +25,16 @@ function Listener(bot) {
             bot.addListener("message", function(from, to, message) {
                 that.checkListeners(from, to, message);
             });
+
+            //Register main listener
+            bot.addListener("action", function(from, to, message) {
+                that.checkListeners(from, to, message);
+            });
             bot.addListener("join", function(from, to, message) {
                that.checkCommandListeners(from, to, message);
             });
+
+
 
         });
     });
@@ -150,10 +157,12 @@ Listener.prototype.checkListeners =function(from, to, message) {
       }
     }
 
-    var route = tochan ? routes[to] : routes['priv'];
+    var route = tochan ? routes[to] : routes.priv;
 
     //Exec route
-    if(!route) return;
+    if(!route) {
+        return;
+    }
 
     route.forEach(function(r) {
         if(message.match(r[0])) {
