@@ -1,3 +1,5 @@
+"use strict";
+
 var util = require('util');
 var fs = require("fs");
 var Utils = require('./utils').Utils;
@@ -124,6 +126,8 @@ Listener.prototype.loadPlugins  = function(_cb) {
 Listener.prototype.checkListeners =function(from, to, message) {
 
     if(!this.utils.canSpeak(to)) return;
+
+    console.log(to, message);
 
     var routes = this.routes;
     var bot = this.bot;
