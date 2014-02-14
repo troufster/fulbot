@@ -1,4 +1,3 @@
-
 //All code below by http://ermahgerd.jmillerdesign.com/#!/translate
 
 function str_split(string, split_length) {
@@ -102,7 +101,11 @@ function str_split(string, split_length) {
     if ((originalWord.substr(-3) == 'LOW') && (word.substr(-3) == 'LER')) {
       word = word.substr(0, word.length - 3) + 'LO';
     }
-
+    
+    if (originalWord[originalWord.length-1] == 'A'){
+      word = word.concat('ER');
+    }
+    
     return word;
   };
 

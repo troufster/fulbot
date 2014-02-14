@@ -8,7 +8,11 @@ var foodzors = [
   "tacobar",
   "cloetta center",
   "marcus pizzeria",
-  "texas"
+  "texas",
+  "konsert & kongress",
+  "hagdahls",
+  "ghingis",
+  "matkällaren"
 ];
 
 function sayFood(bot, from, to, message) {

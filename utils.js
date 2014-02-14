@@ -20,7 +20,8 @@ Utils.isChanMessage = function(to) {
 
 Utils.isUserOperator = function(bot, channel, nick) {
   var n = bot.chans[channel].users[nick];
-  return n.indexOf("@") > -1 || n.indexOf("%") > -1;
+  if (n === undefined) return false;
+  return n.indexOf("@") > -1 || n.indexOf("%") > -1 || n.indexOf("~") > -1;
 };
 
 Utils.userList = function(bot, channel) {
