@@ -22,6 +22,8 @@ function urlShout() {
     }
     that.subscribers = d;
   });
+
+  this.LoadPlugins();
 }
 
 //mixin
@@ -30,7 +32,7 @@ configMixin(urlShout);
 urlShout.prototype.LoadPlugins = function(){
   var that = this;
 
-  fs.readdir('./urlshout', function(err, f) {
+  fs.readdir('./plugins/urlshout', function(err, f) {
     if(err) {
       throw err;
     }
@@ -91,20 +93,20 @@ urlShout.prototype.changeNick = function(o, n){
 
 var shouter = new urlShout();
 
+
 function parseUrl(bot, from, to, message){
-  for(var i = shouter.subscribers.length-1;i >= 0;i--){
-    bot.say(to, shouter.subscribers[i])
-  }
+  var ua = Object.keys(bot.chans[to].users);
 
-}
-
-function out(err,d,bot,ua){
-  if(err)return;
-  for(var i = subscribers.length-1;i >= 0;i--){
-    if (ua.indexOf(subscribers[i]) > -1){
-      bot.notice(subscribers[i],d);
-    }
-  }
+  shouter.parsers.forEach(function(r) {
+    r(message, function(err,text){
+      if(err)return;
+      for(var i = shouter.subscribers.length-1;i >= 0;i--){
+        if (ua.indexOf(shouter.subscribers[i]) > -1){
+          bot.notice(shouter.subscribers[i],text);
+        }
+      }
+    });
+  });
 }
 
 function subscribeUser(bot, from, to, message){

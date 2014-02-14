@@ -38,7 +38,6 @@ exports.parseUrl = function(message, cb){
 
   var url = _url[0];
 
-  var ua = Object.keys(bot.chans[to].users);
   if (url.match(/(https?:\/\/)?(www\.)?youtube\.com\/watch\?v/)){
     var youtube_id = url.match(/\?v=([\w-]{11})/);
 
@@ -46,7 +45,7 @@ exports.parseUrl = function(message, cb){
       return;
     }
     parseYoutube(youtube_id[1], function(err, d) {
-      out(err,d,bot,ua);
+      cb(err,d);
     });
   }
 }

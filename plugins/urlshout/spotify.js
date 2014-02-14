@@ -33,7 +33,7 @@ function parseSpotify(uri, _cb){
     });
 }
 
-exports.parseUrl = function(bot, from, to, message){
+exports.parseUrl = function(message, cb){
   /* /(?:(?:(?:https?:\/\/)|(?:www\.))(?:(?:[-\w/_\.]*(?:\?\S+))))|(?:spotify:(?:track|album|artist):(?:[a-zA-Z0-9]{22}))/i*/
   var _url =  message.match(/((https?:\/\/)|(www\.))(([-\w/_\.]*(\?\S+)?)?)?|(spotify:(track|album|artist):([a-zA-Z0-9]{22}))/i);
 
@@ -41,7 +41,6 @@ exports.parseUrl = function(bot, from, to, message){
 
   var url = _url[0];
 
-  var ua = Object.keys(bot.chans[to].users);
 if (url.indexOf('open.spotify.com') > -1 ) {
     //http://open.spotify.com/track/66yFvHn4fQRMic2e2uljTJ
     var r = url.split('/');
@@ -49,7 +48,7 @@ if (url.indexOf('open.spotify.com') > -1 ) {
       var uri = "spotify:" +  r[r.length-2] + ":" + r[r.length-1] ;
 
       parseSpotify(uri, function(err, d) {
-        out(err,d,bot,ua);
+        cb(err,d);
       });
     }
 
@@ -57,7 +56,7 @@ if (url.indexOf('open.spotify.com') > -1 ) {
     //spotify:track:66yFvHn4fQRMic2e2uljTJ
 
   parseSpotify(url, function(err, d) {
-    out(err,d,bot,ua);
+    cb(err,d);
   });
   }
 
