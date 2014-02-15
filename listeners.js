@@ -137,6 +137,8 @@ Listener.prototype.checkListeners =function(from, to, message) {
 
     if(!this.bot.canSpeak(to)) {return;}
 
+    console.log(to, message);
+
     var routes = this.routes;
     var bot = this.bot;
     var tochan = bot.isChanMessage(to);
@@ -152,10 +154,12 @@ Listener.prototype.checkListeners =function(from, to, message) {
       }
     }
 
-    var route = tochan ? routes[to] : routes['priv'];
+    var route = tochan ? routes[to] : routes.priv;
 
     //Exec route
-    if(!route) return;
+    if(!route) {
+        return;
+    }
 
     route.forEach(function(r) {
         if(message.match(r[0])) {
