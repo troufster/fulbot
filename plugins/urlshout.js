@@ -1,5 +1,4 @@
-"use strict";
-var http = require('http');
+'use strict';
 var
   fs = require('fs'),
   configMixin = require('../resourceManager.js').mixin;
@@ -11,13 +10,13 @@ function urlShout() {
   this.subscribers = [];
   var that = this;
 
-
   this.load('urlshout', resourceFile, function(e, d) {
     if(e) {
       console.log(e);
       return;
     }
     if (d === null) {
+      that.subscribers =  [];
       return;
     }
     that.subscribers = d;
@@ -65,14 +64,14 @@ urlShout.prototype.saveSubscribers = function(){
       console.log("Could not save file :( :" + e);
     }
   });
-}
+};
 
 urlShout.prototype.addUser = function(user){
   if (this.subscribers.indexOf(user) === -1){
     this.subscribers.push(user);
     this.saveSubscribers();
   }
-}
+};
 
 urlShout.prototype.removeUser = function(user){
   var index = this.subscribers.indexOf(user);
@@ -80,7 +79,7 @@ urlShout.prototype.removeUser = function(user){
     this.subscribers.splice(index,1);
     this.saveSubscribers();
   }
-}
+};
 
 urlShout.prototype.changeNick = function(o, n){
   var index = this.subscribers.indexOf(o);
@@ -88,8 +87,7 @@ urlShout.prototype.changeNick = function(o, n){
     this.subscribers[index] = n;
     this.saveSubscribers();
   }
-
-}
+};
 
 var shouter = new urlShout();
 

@@ -1,9 +1,9 @@
 "use strict";
 
 var fs = require('fs');
-var util = require('util');
 var Utils = require('../utils').Utils;
-var resfile = './resources/reposts/reposts.json';
+var resfile = 'reposts.json';
+var configMixin = require('../resourceManager.js').mixin;
 
 function Reposts() {
   this.data = {
@@ -11,6 +11,10 @@ function Reposts() {
     _nicks: {}
   };
 }
+
+//mixin resourceManager
+configMixin(Reposts);
+
 
 Reposts.prototype.timestamp = function () {
   var d = new Date();
@@ -80,42 +84,23 @@ Reposts.prototype.hasUrl = function (url, poster) {
   return hasurl;
 };
 
-
-function readFileJSON(filename, _cb) {
-  fs.readFile(filename, function (e, d) {
-    if (e) {
-      //Whatever
-      return _cb(null, { _urls: {}, _nicks: {}});
-    }
-    return _cb(null, JSON.parse(d.toString()));
-  });
-}
-
-function writeFileJSON(filename, data, _cb) {
-  fs.open(filename, 'w', 0x0666, function (err, d) {
-    if (err) {
-      return _cb(err);
-    }
-
-    return fs.write(d, JSON.stringify(data), null, undefined, function (err, written) {
-      if (err) {
-        _cb(err);
-      }
-
-      fs.close(d, function () {
-        _cb(null, written);
-      });
-
-    });
-  });
-}
-
 var s = new Reposts();
 
 
-function dosave() {
+s.load('repost', resfile, function(e, d) {
+  if (e) {
+    throw e;
+  }
+  if (d._urls !== undefined && d._nicks !== undefined) {
+    s.data = d;
+  }
+  doSave();
+});
+
+
+function doSave() {
   setInterval(function () {
-    writeFileJSON(resfile, s.data, function (e) {
+    s.save('repost', resfile, s.data, function (e) {
       if (e) {
         return console.log("Could not save reposts :( :" + e);
       }
@@ -124,21 +109,10 @@ function dosave() {
   }, 100000);
 }
 
-
-readFileJSON(resfile, function (e, d) {
-  if (e) {
-    throw e;
-  }
-  s.data = d;
-  dosave();
-});
-
-
 var regex = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
 
 
 function stats() {
-
 
   var urls = Object.keys(s.data._urls);
   var nicks = Object.keys(s.data._nicks);
