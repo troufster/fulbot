@@ -234,11 +234,11 @@ function command(bot, from, to, message) {
 
         var index = s.indexOfRepost(url);
         if(index > -1) {
-          reposts.push("[" + index +  "]" + url);
+          reposts.push("[" + index +  "] -> " + url);
         }
       }
 
-      var result = urls.length + " urls checked, reposts found : " + (reposts.length > 0 ? reposts.join(',') : "none");
+      var result = urls.length + " urls checked, reposts found : " + (reposts.length > 0 ? reposts.join(', ') : "none");
       bot.say(to, result);
       break;
   }
