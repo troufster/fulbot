@@ -41,11 +41,17 @@ Reposts.prototype.timestamp = function () {
   return curr_year + "-" + curr_month + "-" + curr_date + " " + hour + ":" + minutes;
 };
 
-Reposts.prototype.urlIsRepost = function(url) {
+Reposts.prototype.repostAtIndex = function(index) {
   var urls = Object.keys(this.data._urls);
 
-  return urls.indexOf(url) > -1;
-}
+  return (urls.length -1 > index && index >=0) ? urls[index]: "nope";
+};
+
+Reposts.prototype.indexOfRepost = function(url) {
+  var urls = Object.keys(this.data._urls);
+
+  return urls.indexOf(url);
+};
 
 Reposts.prototype.hasUrl = function (url, poster) {
   var urls = Object.keys(this.data._urls);
@@ -199,6 +205,9 @@ function command(bot, from, to, message) {
   var subcmd = tokens[2];
 
   switch (cmd) {
+    case "request":
+      bot.say(to, s.repostAtIndex(subcmd));
+      break;
     case "stats":
       bot.say(to, stats());
       //console.log(s.data._nicks);
@@ -219,8 +228,9 @@ function command(bot, from, to, message) {
       for (var i = 0, l = urls.length; i < l; i++) {
         var url = urls[i];
 
-        if(s.urlIsRepost(url)) {
-          reposts.push(url);
+        var index = s.indexOfRepost(url);
+        if(index > -1) {
+          reposts.push("[" + index +  "]" + url);
         }
       }
 
