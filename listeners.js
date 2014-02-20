@@ -3,6 +3,8 @@
 var util = require('util');
 var fs = require("fs");
 var Utils = require('./utils').Utils;
+var buffertools = require('buffertools');
+var ful = new Buffer([0xef, 0xbf, 0xbd]);
 
 function Listener(bot) {
     this.listeners = [];
@@ -138,13 +140,19 @@ Listener.prototype.loadPlugins  = function(_cb) {
 
 Listener.prototype.checkListeners =function(from, to, message) {
 
-    if(!this.utils.canSpeak(to)) return;
-
-    console.log(to, message);
+    if(!this.utils.canSpeak(to)) {
+      return;
+    }
 
     var routes = this.routes;
     var bot = this.bot;
     var tochan = Utils.isChanMessage(to);
+
+    var rawmsg = new Buffer(message);
+
+    if(buffertools.indexOf(rawmsg, ful) > -1 && tochan && Utils.isUserOperator(this.bot,to,this.bot.nick)) {
+      return this.bot.send('kick', to, from, 'Client sending fuldata, fix your encoding ;)');
+    }
 
     //Command?
     if(!tochan && message.match(/^\./i)) {
