@@ -210,6 +210,11 @@ function command(bot, from, to, message) {
       }
 
       var urls = message.match(regex);
+
+      if(!urls) {
+        return;
+      }
+
       var reposts = [];
       for (var i = 0, l = urls.length; i < l; i++) {
         var url = urls[i];
