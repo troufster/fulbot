@@ -205,13 +205,17 @@ function command(bot, from, to, message) {
   var subcmd = tokens[2];
 
   switch (cmd) {
+    case "r":
+    case "req":
     case "request":
       bot.say(to, s.repostAtIndex(subcmd));
       break;
+    case "s":
     case "stats":
       bot.say(to, stats());
       //console.log(s.data._nicks);
       break;
+    case "c":
     case "check":
       //Only allow checking in PM
       if(isChan) {
