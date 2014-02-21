@@ -44,7 +44,7 @@ Reposts.prototype.timestamp = function () {
 Reposts.prototype.repostAtIndex = function(index) {
   var urls = Object.keys(this.data._urls);
 
-  return (urls.length -1 > index && index >=0) ? urls[index]: "nope";
+  return (urls.length -1 >= index && index >= 0) ? urls[index]: "nope";
 };
 
 Reposts.prototype.indexOfRepost = function(url) {
