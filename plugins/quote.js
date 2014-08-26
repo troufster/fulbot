@@ -105,7 +105,7 @@ function quoteMain(bot, from, to, message) {
       break;
     case "search":
       var throttle = parseInt(parts[3]);
-      if(isNaN(throttle)) {
+      if(isNaN(throttle) || throttle < 1 ) {
         throttle = 5;
       }
       search(parts[2], throttle, function(err, d) {
