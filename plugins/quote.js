@@ -40,17 +40,18 @@ function row(n, cb) {
 }
 
 
-function search(str, cb) {
+function search(str, throttle, cb) {
  fs.readFile(log, function(err, fd){
    if(err) return;
   var rows = fd.toString().split("\n");
   rows = rows.slice(0, rows.length-1);
   var results = [];
-  for(var i = 0, l = rows.length; i < l; i++) {
+  for(var i = 0, l = rows.length; i < l && throttle > 0 ; i++) {
     var q = rows[i];
     
     if(q.indexOf(str) != -1) {
       results.push("Quote #" + i + ": " + rows[i]);
+      throttle--;
     }
   }
 
@@ -103,10 +104,14 @@ function quoteMain(bot, from, to, message) {
       });
       break;
     case "search":
-      search(parts[2], function(err, d) {
+      var throttle = parseInt(parts[3]);
+      if(isNaN(throttle)) {
+        throttle = 5;
+      }
+      search(parts[2], throttle, function(err, d) {
         if(err)return;
         for(var i = 0, l = d.length; i <l ; i++) {
-          bot.say(to, d[i]);
+          bot.say(from, d[i]);
         }
       });
       break;
