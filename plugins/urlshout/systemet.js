@@ -3,7 +3,7 @@ var http = require('http');
 
 
 
-function parseSpotify(uri, _cb){
+function parseSystemet(uri, _cb){
 
   var url = 'http://ws.spotify.com/lookup/1/.json?uri=' + uri;
 
@@ -55,7 +55,7 @@ exports.parseUrl = function(message, cb){
   }
 
   if (uri !== null) {
-    parseSpotify(uri, function(err, d) {
+    parseSystemet(uri, function(err, d) {
       cb(err,d);
     });
   }
