@@ -162,6 +162,7 @@ MarkovBrain.prototype.learn = function(data) {
     if(value.length > 0 && value !== undefined) {
 
       //Only add if value doesn't already exist derp
+
       if(this._root[segment].indexOf(value) === -1) {
         this._root[segment].push(value);
       }
@@ -239,7 +240,7 @@ function brain(bot, from, to, message) {
 
 function spam(bot, from, to, message) {
 
-  //Dont bother with command spam :P
+  //Don't bother with command spam :P
   if(message[0] === "!") {
     return;
   }

@@ -45,11 +45,24 @@ Reposts.prototype.timestamp = function () {
   return curr_year + "-" + curr_month + "-" + curr_date + " " + hour + ":" + minutes;
 };
 
+Reposts.prototype.repostAtIndex = function(index) {
+  var urls = Object.keys(this.data._urls);
+
+  return (urls.length -1 >= index && index >= 0) ? urls[index]: "nope";
+};
+
+Reposts.prototype.indexOfRepost = function(url) {
+  var urls = Object.keys(this.data._urls);
+
+  return urls.indexOf(url);
+};
+
 Reposts.prototype.hasUrl = function (url, poster) {
   var urls = Object.keys(this.data._urls);
   var nicks = Object.keys(this.data._nicks);
 
   var hasurl = urls.indexOf(url) > -1;
+
   var hasnick = nicks.indexOf(poster) > -1;
 
   if (!hasurl) {
@@ -148,6 +161,8 @@ function spam(bot, from, to, message) {
       if (s.hasUrl(urls[i], from)) {
         var repost = s.data._urls[urls[i]];
 
+
+
         bot.say(to, "Repost!! " + urls[i] + " posted " + repost.total + " times since " + repost.firstPoster.date + " (first by " + repost.firstPoster.nick + ")");
 
 
@@ -164,9 +179,41 @@ function command(bot, from, to, message) {
   var subcmd = tokens[2];
 
   switch (cmd) {
+    case "r":
+    case "req":
+    case "request":
+      bot.say(to, s.repostAtIndex(subcmd));
+      break;
+    case "s":
     case "stats":
       bot.say(to, stats());
       //console.log(s.data._nicks);
+      break;
+    case "c":
+    case "check":
+      //Only allow checking in PM
+      if(isChan) {
+        return;
+      }
+
+      var urls = message.match(regex);
+
+      if(!urls) {
+        return;
+      }
+
+      var reposts = [];
+      for (var i = 0, l = urls.length; i < l; i++) {
+        var url = urls[i];
+
+        var index = s.indexOfRepost(url);
+        if(index > -1) {
+          reposts.push("[" + index +  "] -> " + url);
+        }
+      }
+
+      var result = urls.length + " urls checked, reposts found : " + (reposts.length > 0 ? reposts.join(', ') : "none");
+      bot.say(to, result);
       break;
   }
 
@@ -184,7 +231,7 @@ exports.listeners = function () {
       name: "repost spam listener",
       match: /(.*)/i,
       func: spam,
-      listen: ["#sogeti", "#games", "#botdev", "priv"]
+      listen: ["#sogeti", "#games", "#botdev"]
     }
   ];
 };

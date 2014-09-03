@@ -9,7 +9,8 @@
     },
 
     "dependencies" : {
-        "irc" : "0.3.x"
+        "irc" : "0.3.x",
+        "buffertools" : "2.x.x"
     },
 
     "devDependencies" : {
