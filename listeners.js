@@ -1,38 +1,45 @@
 "use strict";
+
+var util = require('util');
 var fs = require("fs");
 var Utils = require('./utils').Utils;
-//var buffertools = require('buffertools');
-//var ful = new Buffer([0xef, 0xbf, 0xbd]);
+var buffertools = require('buffertools');
+var ful = new Buffer([0xef, 0xbf, 0xbd]);
 
 function Listener(bot) {
-    this.listeners = [];
-    this.commands = {};
-    //this.utils =  new Utils();
+  this.listeners = [];
+  this.commands = {};
+  this.utils =  new Utils();
 
-    this.bot = bot;
-    //this.utils.init(bot);
-    this.routes= {};
+  this.bot = bot;
+  this.utils.init(bot);
+  this.routes= {};
 
-    var that = this;
+  var that = this;
 
-    //Load plugins
-    this.loadPlugins(function(err) {
+  //Load plugins
+  this.loadPlugins(function(err) {
 
-        //Map plugin routes
-        that.mapRoutes(function(err, _cb) {
+    //Map plugin routes
+    that.mapRoutes(function(err, _cb) {
 
-            //Register main listener
-            that.bot.addListener("message", function(from, to, message) {
-                that.checkListeners(from, to, message);
-            });
-            that.bot.addListener("join", function(from, to, message) {
-               that.checkCommandListeners(from, to, message);
-            });
-            that.bot.addListener("nick", function(from, to, channels, message) {
-              that.checkCommandListeners(from, to, message, channels[0]);
-            });
-        });
+      //Register main listener
+      bot.addListener("message", function(from, to, message) {
+        that.checkListeners(from, to, message);
+      });
+
+      //Register main listener
+      bot.addListener("action", function(from, to, message) {
+        that.checkListeners(from, to, message);
+      });
+      bot.addListener("join", function(from, to, message) {
+        that.checkCommandListeners(from, to, message);
+      });
+
+
+
     });
+  });
 
 }
 
@@ -40,33 +47,33 @@ function Listener(bot) {
 
 Listener.prototype.mapRoutes = function(_cb) {
 
-    for(var i = 0, l = this.listeners.length; i < l; i++) {
-        var listeners = this.listeners[i];
+  for(var i = 0, l = this.listeners.length; i < l; i++) {
+    var listeners = this.listeners[i];
 
-        for(var j = 0, lj = listeners.length; j<lj; j++) {
-            var lis = listeners[j];
+    for(var j = 0, lj = listeners.length; j<lj; j++) {
+      var lis = listeners[j];
 
-            for(var k = 0, lk = lis.listen.length; k<lk  ; k++) {
-                var route = lis.listen[k];
+      for(var k = 0, lk = lis.listen.length; k<lk  ; k++) {
+        var route = lis.listen[k];
 
-                if(!this.routes[route]){
-                    this.routes[route] = [];
-                }
-
-                if (lis.match !== undefined){
-                  this.routes[route].push([lis.match, lis.func]);
-                } else if(lis.command !== undefined) {
-                  this.routes[route].push([lis.command, lis.func]);
-                }
-            }
+        if(!this.routes[route]){
+          this.routes[route] = [];
         }
-    }
 
-    _cb(null);
+        if (lis.match !== undefined){
+          this.routes[route].push([lis.match, lis.func]);
+        } else if(lis.command !== undefined) {
+          this.routes[route].push([lis.command, lis.func]);
+        }
+      }
+    }
+  }
+
+  _cb(null);
 };
 
 Listener.prototype.addListener = function(l) {
-    this.listeners.push(l);
+  this.listeners.push(l);
 };
 
 Listener.prototype.addCommand = function(c) {
@@ -74,41 +81,37 @@ Listener.prototype.addCommand = function(c) {
 };
 
 Listener.prototype.loadPlugins  = function(_cb) {
-    var that = this;
-    var dispatch = 2;
+  var that = this;
+  var dispatch = 2;
 
-    //Await both async ops
-    function cb() {
-      if (dispatch === 0) {
-        _cb(null);
+  //Await both async ops
+  function cb() {
+    if(dispatch == 0) _cb(null);
+  }
+
+  fs.readdir('./plugins', function(err, f) {
+    if(err) throw err;
+
+    for(var i = 0, l = f.length; i < l; i++) {
+      var file = f[i];
+
+      if(file.indexOf(".js") < 0) {
+        continue;
+      }
+
+      var plugName = __dirname.replace(/\\/g,'/' ) + "/plugins/" + file;
+
+      var plug = require(plugName);
+
+      if(plug.listeners) {
+        that.addListener(plug.listeners());
       }
     }
 
-    fs.readdir('./plugins', function(err, f) {
-        if(err) {
-          throw err;
-        }
+    dispatch--;
+    cb();
 
-        for(var i = 0, l = f.length; i < l; i++) {
-            var file = f[i];
-
-            if(file.indexOf(".js") < 0) {
-                continue;
-            }
-
-            var plugName = __dirname.replace(/\\/g,'/' ) + "/plugins/" + file;
-
-            var plug = require(plugName);
-
-            if(plug.listeners) {
-                that.addListener(plug.listeners());
-            }
-        }
-
-        dispatch--;
-        cb();
-
-    });
+  });
 
   fs.readdir('./commands', function(err, f) {
     if(err) throw err;
@@ -137,63 +140,59 @@ Listener.prototype.loadPlugins  = function(_cb) {
 
 Listener.prototype.checkListeners =function(from, to, message) {
 
+  if(!this.utils.canSpeak(to)) {
+    return;
+  }
 
-    if(!this.utils.canSpeak(to)) {
-      return;
+  var routes = this.routes;
+  var bot = this.bot;
+  var tochan = Utils.isChanMessage(to);
+
+  var rawmsg = new Buffer(message);
+
+  if(buffertools.indexOf(rawmsg, ful) > -1 && tochan && Utils.isUserOperator(this.bot,to,this.bot.nick)) {
+    return this.bot.send('kick', to, from, 'Client sending fuldata, fix your encoding ;)');
+  }
+
+  //Command?
+  if(!tochan && message.match(/^\./i)) {
+    var command = message.substr(1, message.length);
+
+    var cmdFunc = this.commands[command];
+
+    if(cmdFunc){
+      return cmdFunc.func.call(this, to, from, message);
     }
+  }
 
-    var routes = this.routes;
-    var bot = this.bot;
-    var tochan = bot.isChanMessage(to);
+  var route = tochan ? routes[to] : routes.priv;
 
-    var rawmsg = new Buffer(message);
+  //Exec route
+  if(!route) {
+    return;
+  }
 
-    if(buffertools.indexOf(rawmsg, ful) > -1 && tochan && Utils.isUserOperator(this.bot,to,this.bot.nick)) {
-      return this.bot.send('kick', to, from, 'Client sending fuldata, fix your encoding ;)');
+  route.forEach(function(r) {
+    if(message.match(r[0])) {
+
+      tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
     }
-
-    //Command?
-    if(!tochan && message.match(/^\./i)) {
-      var command = message.substr(1, message.length);
-
-      var cmdFunc = this.commands[command];
-
-      if(cmdFunc){
-        return cmdFunc.func.call(this, to, from, message);
-      }
-    }
-
-    var route = tochan ? routes[to] : routes.priv;
-
-    //Exec route
-    if(!route) {
-        return;
-    }
-
-    route.forEach(function(r) {
-        if(message.match(r[0])) {
-
-            tochan ? r[1](bot, from, to, message) : r[1](bot, to, from, message);
-        }
-    });
+  });
 
 };
 
-Listener.prototype.checkCommandListeners = function(from, to, message, channel){
+Listener.prototype.checkCommandListeners = function(from, to, message){
   //message.command
   //message.nick
 
   if (to === this.bot.nick ) {return;}
-  if(!this.bot.canSpeak(from)) {return;}
+  if(!this.utils.canSpeak(from)) {return;}
 
   var routes = this.routes;
   var bot = this.bot;
 
   var route = routes[from];
 
-  if (!route && channel !== undefined) {
-    route = routes[channel];
-  }
   //Exec route
   if(!route) {return;}
 
