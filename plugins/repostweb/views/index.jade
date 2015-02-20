@@ -1,8 +1,12 @@
 html
     head
+
         title!= title
     body
-        ul
-            each url in urls
+        ul(style="list-style-type: none;")
+            each url,index in urls
                 li
-                    a(href=url) !{url}
+                        ='#' + (urls.length-index-1) + ' '
+                        a(href=url) !{url}
+
+
