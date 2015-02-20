@@ -1,0 +1,8 @@
+html
+    head
+        title!= title
+    body
+        ul
+            each url in urls
+                li
+                    a(href=url) !{url}

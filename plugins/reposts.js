@@ -4,6 +4,8 @@ var fs = require('fs');
 var Utils = require('../utils').Utils;
 var resfile = 'reposts.json';
 var configMixin = require('../resourceManager.js').mixin;
+var web = require('./repostweb/app.js');
+
 
 function Reposts() {
   this.data = {
@@ -100,7 +102,7 @@ Reposts.prototype.hasUrl = function (url, poster) {
 var s = new Reposts();
 
 
-s.load('repost', resfile, function(e, d) {
+s.load('reposts', resfile, function(e, d) {
   if (e) {
     throw e;
   }
@@ -113,7 +115,7 @@ s.load('repost', resfile, function(e, d) {
 
 function doSave() {
   setInterval(function () {
-    s.save('repost', resfile, s.data, function (e) {
+    s.save('reposts', resfile, s.data, function (e) {
       if (e) {
         return console.log("Could not save reposts :( :" + e);
       }
@@ -218,6 +220,7 @@ function command(bot, from, to, message) {
   }
 
 }
+
 
 exports.listeners = function () {
   return [

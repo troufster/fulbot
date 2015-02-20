@@ -1,24 +1,21 @@
 {
-    "name" : "fulbot",
-    "version" : "0.2.2",
-    "description" : "A simple but extensible irc bot foundation",
-
-    "scripts" : {
-        "start" : "node app.js",
-        "test" : "nodeunit test/*"
-    },
-
-    "dependencies" : {
-        "irc" : "0.3.x",
-        "buffertools" : "2.x.x"
-    },
-
-    "devDependencies" : {
-        "nodeunit"  : "0.7.x"
-    },
-
-    "engines" : {
-        "node" : ">=0.8"
-    }
-
+  "name": "fulbot",
+  "version": "0.2.2",
+  "description": "A simple but extensible irc bot foundation",
+  "scripts": {
+    "start": "node app.js",
+    "test": "nodeunit test/*"
+  },
+  "dependencies": {
+    "buffertools": "2.x.x",
+    "express": "^4.11.2",
+    "irc": "0.3.x",
+    "jade": "^1.9.2"
+  },
+  "devDependencies": {
+    "nodeunit": "0.7.x"
+  },
+  "engines": {
+    "node": ">=0.8"
+  }
 }

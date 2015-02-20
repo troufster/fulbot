@@ -73,10 +73,10 @@ function stats(cb) {
 
 function quoteMain(bot, from, to, message) {
   var parts = message.split(" ");
-  
+
   var command = parts[1];
 
-  var rest = parts.slice(2,parts.length).join(" ");;
+  var rest = parts.slice(2,parts.length).join(" ");
 
   //Hashes
 
