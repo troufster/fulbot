@@ -6,7 +6,9 @@ html
         ul(style="list-style-type: none;")
             each url,index in urls
                 li
-                        ='#' + (urls.length-index-1) + ' '
-                        a(href=url) !{url}
+                    - var i = (urls.length-index-1)
+                    a(href='/repost/'+i) #!{i} &nbsp;
+                    a(href=url) !{url}
+
 
 
