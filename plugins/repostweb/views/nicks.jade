@@ -1,0 +1,18 @@
+html
+    head
+
+        title!= title
+    body
+        table
+            tr
+                th="Nick"
+                th="Reposts"
+                th="Last repost"
+
+            each nick,index in nicks
+                tr
+                    -var i = urls.indexOf(data[nick].lastRepost)
+                    td=nick
+                    td=data[nick].reposts
+                    td
+                        a(href='/repost/'+ i) !{data[nick].lastRepost}

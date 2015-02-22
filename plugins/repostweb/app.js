@@ -18,7 +18,9 @@ var urls;
 function load() {
   r.load('reposts', resfile, function(e, d) {
     if (e) {
-      throw e;
+      //dont care
+      return;
+      //throw e;
     }
 
     data = d;
@@ -40,6 +42,13 @@ app.get('/', function (req, res) {
   var urlz = Array.prototype.slice.call(urls);
 
   res.render('index', { title: 'Reposts', urls: urlz.reverse(), data: data});
+});
+
+app.get('/nicks', function(req,res) {
+  var nickdata = data._nicks;
+  var nicks = Object.keys(data._nicks);
+
+  res.render('nicks', { title: 'Nicks', data : nickdata, nicks : nicks, urls : urls});
 });
 
 app.get('/repost/:id', function(req,res) {
