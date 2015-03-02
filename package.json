@@ -10,7 +10,8 @@
     "buffertools": "2.x.x",
     "express": "^4.11.2",
     "irc": "0.3.x",
-    "jade": "^1.9.2"
+    "jade": "^1.9.2",
+	"nickserv": "0.4.x"
   },
   "devDependencies": {
     "nodeunit": "0.7.x"

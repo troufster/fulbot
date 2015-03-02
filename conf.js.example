@@ -1,6 +1,8 @@
 module.exports = {
   server : "irc.isolated.se",
   nick : "Bullshit",
+  password : "fulbot",
+  email: "fulbot@ful.bot"
   channels : ["#chan", "#otherchan"],
   pluglisten : {
     "!foodzor randomizer" : ["#chan", "priv"],
