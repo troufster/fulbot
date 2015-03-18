@@ -2,13 +2,99 @@ html
     head
 
         title!= title
+        style.
+            a.previewlink {
+                color: #00cc00;
+            }
+
+            a.previewlink:visited {
+                color: #cc0000;
+            }
+        script(src="http://code.jquery.com/jquery-git.js")
+        script.
+
+            var Match = {
+                ImgurAlbum : /(https?):\/\/(www\.)?(?:m\.)?imgur\.com\/a\/([a-zA-Z0-9]+)?/,
+                Imgur : /^https?:\/\/(\w+\.)?imgur.com\/(\w*\d\w*)+(\.[a-zA-Z]{3})?$/,
+                Image : /(https?:\/\/.*\.(?:png|jpg|gif\b))/i
+            };
+
+            function urlType(url) {
+                var tests = [
+                    [ Match.ImgurAlbum  , "imgura" ],
+                    [ Match.Imgur       , "imgur" ],
+                    [ Match.Image       , "image" ]
+                ];
+                for (var i = 0, l = tests.length; i < l; i++) {
+                    var match = tests[i][0].test(url);
+                    if (match) return tests[i][1];
+                }
+                return false;
+            }
+
+            function doPreview(e) {
+                var t = $(e.target);
+
+                var link = t.siblings('.link')[0].href;
+
+                var type = urlType(link);
+
+                if(!type) return;
+
+
+                switch(type) {
+                    case "image":
+                        $('<img src="' + link + '">').load(function () {
+
+                            $(this).width(500).appendTo(t.parent());
+                        });
+                        break;
+                    case "imgur":
+                        $('<img src="' + link + '.png">').load(function () {
+                            $(this).width(500).appendTo(t.parent());
+                        });
+                        break;
+                    case "imgura":
+                            var id = Match.ImgurAlbum.exec(link)[3];
+                        $('<iframe class="imgur-album" width="100%" height="550" frameborder="0" src="http://imgur.com/a/' + id +'/embed"></iframe>')
+                                .appendTo(t.parent());
+                        break;
+                    default:
+                        break;
+                }
+
+                return false;
+            }
+
+            $(document).ready(function () {
+                //get all links
+                var links = $('#container').children();
+                var ll = links.length;
+                while (ll--) {
+
+                    var li = links[ll];
+                    var url = li.getElementsByClassName('link')[0].href;
+                    var type = urlType(url);
+
+                    if (!type) continue;
+                    //Add preview link '<a href="#" class="preview"> preview </a>';
+                    var preview = document.createElement('a');
+                    var previewText = document.createTextNode(" [ " + type + " ]");
+                    preview.appendChild(previewText);
+                    preview.title = "preview";
+                    preview.href = "#";
+                    preview.onclick = doPreview;
+                    preview.className = "previewlink";
+                    li.appendChild(preview);
+                }
+            });
     body
-        ul(style="list-style-type: none;")
+        ul#container(style="list-style-type: none;")
             each url,index in urls
                 li
                     - var i = (urls.length-index-1)
                     a(href='/repost/'+i) #!{i} &nbsp;
-                    a(href=url) !{url}
+                    a.link(href=url) !{url}
 
 
 

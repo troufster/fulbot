@@ -1,74 +1,115 @@
+"use strict";
+
 var fs = require("fs");
-var log = "quotes.log";
+var resfile = 'quotes.json';
+var dir = "quotes";
+var Utils = require('../utils').Utils;
+var configMixin = require('../resourceManager.js').mixin;
+
+function Quotes() {
+  this.data = [];
+}
+
+configMixin(Quotes);
+
+var q = new Quotes();
+
+function doSave() {
+  setInterval(function () {
+    q.save(dir, resfile, q.data, function (e) {
+      if (e) {
+        return console.log("Could not save quites :( :" + e);
+      }
+      return console.log("Quotes saved...");
+    });
+  }, 100000);
+}
+
+q.load(dir, resfile, function(e, d) {
+  if (e) {
+    throw e;
+  }
+
+  if (d !== undefined) {
+    q.data = d;
+
+    require('./quoteweb/app.js');
+  }
+
+  doSave();
+});
 
 function write(quote, cb) {
-  fs.open(log, 'a', 0666, function(err, fd) {
-    if(err) return;
+  if(quote.length < 2) {
+    return cb(null, "Nopenopenope");
+  }
 
-    if(quote.length < 2) {
-      return cb(null, "Nopenopenope");
-    }
-    fs.write(fd, quote + "\n", null, undefined, function(err, written) {
-      cb(null, written + " bytes written");
-    }); 
+  q.data.push({
+    points : 0,
+    text : quote,
+    id : q.data.length,
+    subject : "Quote #" + (q.data.length)
   });
+
+  cb(null, "Quote #" + q.data.length + " added");
 }
 
 function random(cb) {
-  fs.readFile(log, function(err, fd) {
-    if(err) return;
-    var rows = fd.toString().split("\n");
-    rows = rows.slice(0, rows.length-1);
-    var rand = Math.floor(Math.random() * rows.length);
-    cb(null, "Quote #" + rand + ": " + rows[rand]);
-  });
+  var n = q.data.length;
+
+  var rand = Math.floor(Math.random() * n);
+
+  var quote = q.data[rand];
+
+  cb(null, "Quote #" + quote.id + ": " + quote.text);
+}
+
+
+function getQuote(id) {
+  for(var i = 0, l = q.data.length; i < l; i++) {
+    var quote = q.data[i];
+
+    if(quote.id == id) {
+      return quote;
+    }
+  }
+
+  return null;
 }
 
 function row(n, cb) {
-  fs.readFile(log, function(err, fd) {
-    if(err) return;
-    var rows = fd.toString().split("\n");
-    rows = rows.slice(0, rows.length-1);
-    var row = rows[n];
+  var r = getQuote(n);
 
-    if(row !== null && row !== undefined) {
-      cb(null, "Quote #" + n + ": " + row);
-    } else {
-      cb(null, "Hey stupid, quote #" + n + " does not exist");
-    }
-  });
+  if(r !== null && r !== undefined) {
+    cb(null, "Quote #" + r.id + ": " + r.text);
+  } else {
+    cb(null, "Hey stupid, quote #" + n + " does not exist");
+  }
 }
 
 
 function search(str, throttle, cb) {
- fs.readFile(log, function(err, fd){
-   if(err) return;
-  var rows = fd.toString().split("\n");
-  rows = rows.slice(0, rows.length-1);
   var results = [];
-  for(var i = 0, l = rows.length; i < l && throttle > 0 ; i++) {
-    var q = rows[i];
-    
-    if(q.indexOf(str) != -1) {
-      results.push("Quote #" + i + ": " + rows[i]);
+
+  for(var i = 0, l = q.data.length; i < l && throttle > 0 ; i++) {
+    var quote = q.data[i];
+
+    if(quote.text.indexOf(str) !== -1) {
+      results.push("Quote #" + quote.id + ": " + quote.text);
       throttle--;
     }
   }
 
-  if(results.length ==0) {
-    cb(null, ["No match found for: " + str]);
+  if(results.length === 0) {
+    return cb(null, ["No match found for: " + str]);
   }
+
   cb(null, results);
- });
 }
 
 function stats(cb) {
-  fs.readFile(log, function(err,fd) {
-    if(err) return;
-    var rows = fd.toString().split("\n");
-    var str = "I have " + (rows.length -1) + " quotezors up in dis here filesystem.";
-    cb(null, str);
-  });
+  var str = "I have " + (q.data.length) + " quotezors up in dis here json.";
+  cb(null, str);
 }
 
 function quoteMain(bot, from, to, message) {
@@ -80,7 +121,7 @@ function quoteMain(bot, from, to, message) {
 
   //Hashes
 
-  if(command !== undefined && command.indexOf("#") != -1) {
+  if(command !== undefined && command.indexOf("#") !== -1) {
     var n = command.replace('#', '');
     row(n, function(e,d) {
       if(e) return;
@@ -89,8 +130,40 @@ function quoteMain(bot, from, to, message) {
     return;
   }
 
-
   switch(command) {
+    case "vote":
+
+      if(Utils.isChanMessage(to)) {
+        return;
+      }
+
+      var votequoteid = parts[2].replace('#','');
+      var votequote = getQuote(votequoteid);
+
+      if(!votequote) {
+        return;
+      }
+
+
+      //Add voter
+      if(!votequote.voters) {
+        votequote.voters = [];
+      }
+
+      //Already voted
+      if(votequote.voters.indexOf(to) > -1) {
+        return bot.say(to, "Nope");
+      }
+
+
+      votequote.voters.push(to);
+
+
+      //Add score
+      votequote.points += 1;
+
+      bot.say(to, "Vote for quote #" + votequoteid + " registered");
+      break;
     case "add":
       write(rest, function(err, d) {
         if(err) return;
@@ -124,12 +197,17 @@ function quoteMain(bot, from, to, message) {
   }
 }
 
+exports.quotes = function() {
+  return q.data;
+};
 
 exports.listeners = function() {
   return [{
     name : "Quotebot",
       match : /^\!quote/i,
       func : quoteMain,
-      listen : ["#sogeti", "priv"]
+      listen : ["#sogeti", "priv", "#botdev"]
   }];
 };
+
+
