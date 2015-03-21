@@ -1,6 +1,5 @@
 "use strict";
 
-var util = require('util');
 var fs = require("fs");
 var Utils = require('./utils').Utils;
 var buffertools = require('buffertools');
@@ -23,12 +22,15 @@ function Listener(bot) {
     //Map plugin routes
     that.mapRoutes(function(err, _cb) {
 
+      bot.addListener("registered", function(message) {
+        that.checkServerListeners(message);
+      });
+
       //Register main listener
       bot.addListener("message", function(from, to, message) {
         that.checkListeners(from, to, message);
       });
 
-      //Register main listener
       bot.addListener("action", function(from, to, message) {
         that.checkListeners(from, to, message);
       });
@@ -36,14 +38,9 @@ function Listener(bot) {
         that.checkCommandListeners(from, to, message);
       });
 
-
-
     });
   });
-
 }
-
-
 
 Listener.prototype.mapRoutes = function(_cb) {
 
@@ -179,6 +176,20 @@ Listener.prototype.checkListeners =function(from, to, message) {
     }
   });
 
+};
+
+Listener.prototype.checkServerListeners = function(message){
+  var routes = this.routes;
+  var bot = this.bot;
+
+  var route = routes['server'];
+
+  //Exec route
+  if(!route) {return;}
+
+  route.forEach(function(r) {
+    r[1](bot, message);
+  });
 };
 
 Listener.prototype.checkCommandListeners = function(from, to, message){
