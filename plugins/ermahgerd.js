@@ -55,14 +55,14 @@ function str_split(string, split_length) {
 
     // Drop vowel from end of words
     if (originalWord.length > 2) {  // Keep it for short words, like "WE"
-      word = word.replace(/[AEIOU]$/, '');
+      word = word.replace(/[AEIOUÅÄÖ]$/, '');
     }
 
     // Reduce duplicate letters
     word = word.replace(/[^\w\s]|(.)(?=\1)/gi, '');
 
     // Reduce adjacent vowels to one
-    word = word.replace(/[AEIOUY]{2,}/g, 'E');  // TODO: Keep Y as first letter
+    word = word.replace(/[AEIOUYÅÄÖ]{2,}/g, 'E');  // TODO: Keep Y as first letter
 
     // DOWN -> DERN
     word = word.replace(/OW/g, 'ER');
@@ -71,7 +71,7 @@ function str_split(string, split_length) {
     word = word.replace(/AKES/g, 'ERKS');
 
     // The meat and potatoes: replace vowels with ER
-    word = word.replace(/[AEIOUY]/g, 'ER');   // TODO: Keep Y as first letter
+    word = word.replace(/[AEIOUYÅÄÖ]/g, 'ER');   // TODO: Keep Y as first letter
 
     // OH -> ER
     word = word.replace(/ERH/g, 'ER');
@@ -117,11 +117,11 @@ function sayHello(bot, from, to, message) {
   
   var parts = message.split(" ");
   
-  var command = parts[0];
+  //var command = parts[0];
 
   var rest = parts.slice(1,parts.length).join(" ");;
-  
-  text = rest.toUpperCase();
+
+  var text = rest.toUpperCase();
 
   var words = text.split(' '),
     translatedWords = [];
