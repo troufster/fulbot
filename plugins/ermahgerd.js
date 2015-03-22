@@ -59,7 +59,7 @@ function str_split(string, split_length) {
     }
 
     // Reduce duplicate letters
-    word = word.replace(/[^\w\s]|(.)(?=\1)/gi, '');
+    word = word.replace(/[^\wÅÄÖ\s]|(.)(?=\1)/gi, '');
 
     // Reduce adjacent vowels to one
     word = word.replace(/[AEIOUYÅÄÖ]{2,}/g, 'E');  // TODO: Keep Y as first letter
@@ -95,7 +95,7 @@ function str_split(string, split_length) {
     }
 
     // Reduce duplicate letters
-    word = word.replace(/[^\w\s]|(.)(?=\1)/gi, '');
+    word = word.replace(/[^\wÅÄÖ\s]|(.)(?=\1)/gi, '');
 
     // YELLOW -> YERLER -> YERLO
     if ((originalWord.substr(-3) == 'LOW') && (word.substr(-3) == 'LER')) {
@@ -119,7 +119,7 @@ function sayHello(bot, from, to, message) {
   
   //var command = parts[0];
 
-  var rest = parts.slice(1,parts.length).join(" ");;
+  var rest = parts.slice(1,parts.length).join(" ");
 
   var text = rest.toUpperCase();
 
@@ -127,8 +127,8 @@ function sayHello(bot, from, to, message) {
     translatedWords = [];
 
   for (var j in words) {
-    var prefix = words[j].match(/^\W+/) || '',
-      suffix = words[j].match(/\W+$/) || '',
+    var prefix = words[j].match(/^\WÅÄÖ+/) || '',
+      suffix = words[j].match(/\WÅÄÖ+$/) || '',
       word = words[j].replace(prefix, '').replace(suffix, '');
 
     if (word) {
