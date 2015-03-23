@@ -22,9 +22,10 @@ function load() {
       return;
       //throw e;
     }
-
-    data = d;
-    urls = Object.keys(data._urls);
+    if (d !== undefined && d._urls !== undefined && d._nicks !== undefined) {
+      data = d;
+      urls = Object.keys(data._urls);
+    }
   });
 }
 

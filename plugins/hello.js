@@ -41,10 +41,10 @@ function HelloHandler() {
       console.log(e);
       return;
     }
-    if (d === null) {
-      return;
+    if (d !== undefined) {
+      that.data = d;
     }
-    that.data = d;
+
 
     /* .specialUsers = d.specialUsers;
     that.data.greetings = d.greetings;*/
@@ -124,7 +124,11 @@ HelloHandler.prototype.GetSentence = function(channel, user){
     return u[0].greetings[Math.floor(Math.random() * u[0].greetings.length)].replace('%1',user);
   }
 
-  return chan.greetings[Math.floor(Math.random() * chan.greetings.length)].replace('%1',user);
+  if (chan.greetings.length > 0){
+    return chan.greetings[Math.floor(Math.random() * chan.greetings.length)].replace('%1',user);
+  }
+
+  return "";
 };
 
 /**

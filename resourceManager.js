@@ -28,13 +28,13 @@ var ResourceManager = function(){
   function readFileJSON(filename, _cb) {
     fs.readFile(filename, function(e, d) {
       if (e) {
-        _cb(e);
+        _cb(null);
       }
       try{
         _cb(null, JSON.parse(d.toString()));
       }
       catch(e){
-        _cb(e);
+        _cb(null);
       }
     });
   }
@@ -44,29 +44,35 @@ var ResourceManager = function(){
     var path = resourcePath + plugin;
     var filename = path + '/' + fn;
 
-    fs.exists(path, function(exists){
-      if (!exists){
-        fs.mkdir(path, function(){
-          _cb(null,{});
+    fs.stat(path, function(err,stats){
+      if (!stats){
+        fs.mkdir(path, function(err){
+          if (err){
+            console.log(err);
+          }
         });
-      } else{
-        readFileJSON(filename, _cb);
       }
     });
+
+    readFileJSON(filename, _cb);
   };
 
   this.save = function(plugin,fn, data, _cb) {
     var path = resourcePath + plugin;
     var filename = path + '/' + fn;
-    fs.exists(path, function(exists){
-      if (!exists){
-        fs.mkdir(path, function(){
-          writeFile(filename, JSON.stringify(data), _cb);
-        });
-      } else{
-        writeFile(filename, JSON.stringify(data), _cb);
-      }
-    });
+
+
+      fs.stat(path, function(err,stats){
+          if (!stats){
+              fs.mkdir(path, function(err){
+                  if (err){
+                      console.log(err);
+                  }
+              });
+          }
+      });
+
+    writeFile(filename, JSON.stringify(data), _cb);
   };
 
   return this;
