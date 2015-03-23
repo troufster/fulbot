@@ -2,10 +2,12 @@
 
 var resfile = 'reposts.json';
 var configMixin = require('../../resourceManager.js').mixin;
-
+var path =  require('path');
 var express = require('express');
 
 var app = express();
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 function RepostStore() {}
 
@@ -14,6 +16,8 @@ configMixin(RepostStore);
 var r = new RepostStore();
 var data;
 var urls;
+var posts;
+
 
 function load() {
   r.load('reposts', resfile, function(e, d) {
@@ -22,9 +26,26 @@ function load() {
       return;
       //throw e;
     }
+
     if (d !== undefined && d._urls !== undefined && d._nicks !== undefined) {
       data = d;
       urls = Object.keys(data._urls);
+      posts = {};
+
+      for(var i = 0, l = urls.length; i < l; i++) {
+        var url = data._urls[urls[i]];
+        var nick = url.firstPoster.nick;
+
+        if(nick === undefined) {
+          continue;
+        }
+
+        if(posts[nick] === undefined) {
+          posts[nick] = [];
+        }
+
+        posts[nick].push(urls[i]);
+      }
     }
   });
 }
@@ -49,7 +70,7 @@ app.get('/nicks', function(req,res) {
   var nickdata = data._nicks;
   var nicks = Object.keys(data._nicks);
 
-  res.render('nicks', { title: 'Nicks', data : nickdata, nicks : nicks, urls : urls});
+  res.render('nicks', { title: 'Nicks', data : nickdata, nicks : nicks, urls : urls, posts:posts});
 });
 
 app.get('/repost/:id', function(req,res) {

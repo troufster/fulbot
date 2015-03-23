@@ -11,4 +11,9 @@ block content
                 div.quotesubject
                     div.quotetext
                     pre #{quote.text}
+                if single
+
+                    ul
+                        each voter in quote.voters
+                            li=voter
 

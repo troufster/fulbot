@@ -20,7 +20,7 @@ function getQuote(id) {
 exports.getid = function(req, res) {
 	var q = getQuote(req.params.id);
 	var qa = [q];
-  res.render('quotelist', { quotes : qa , title : 'Quote #' + req.params.id});
+  res.render('quotelist', { quotes : qa , title : 'Quote #' + req.params.id, single : true});
 };
 
 exports.get = function(req, res) {
