@@ -106,7 +106,7 @@ s.load('reposts', resfile, function(e, d) {
   if (e) {
     throw e;
   }
-  if (d._urls !== undefined && d._nicks !== undefined) {
+  if (d!== undefined && d._urls !== undefined && d._nicks !== undefined) {
     s.data = d;
   }
   doSave();

@@ -179,10 +179,10 @@ var s = new MarkovBrain();
 
 
 s.load('/brain','brain.json', function(e, d) {
-	if(e) {
-    throw e;
+
+  if (d !== undefined){
+    s._root = d;
   }
-	s._root = d;
 	doSave();
 });
 

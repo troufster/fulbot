@@ -15,11 +15,9 @@ function urlShout() {
       console.log(e);
       return;
     }
-    if (d === null) {
-      that.subscribers =  [];
-      return;
-    }
-    that.subscribers = d;
+      if (d !== undefined) {
+          that.subscribers = d;
+      }
   });
 
   this.LoadPlugins();
