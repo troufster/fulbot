@@ -6,9 +6,23 @@ let buffertools = require('buffertools');
 let ful = new Buffer([0xef, 0xbf, 0xbd]);
 
 
-class Listener{
+class Listener {
+  constructor() {
+    this._listeners = [];
+  }
+
+  get listeners() {
+    return this._listeners;
+  }
+
+  set listeners(l) {
+    this._listeners = l;
+  }
+
+}
+
+class BotListener extends Listener{
   constructor(bot){
-    this.listeners = [];
     this.commands = {};
     this.utils =  new Utils();
 
@@ -50,7 +64,7 @@ class Listener{
       load('./plugins', '/plugins/', this.addListener),
       load('./commands', '/commands/', this.addCommand)
     ]).then(_cb);
-    ;
+
   }
 
   mapRoutes (_cb) {
@@ -81,7 +95,7 @@ class Listener{
   }
 
   addListener (l) {
-    this.listeners.push(l);
+    this.listeners().push(l);
   }
 
   addCommand (c) {
@@ -169,4 +183,6 @@ class Listener{
   }
 }
 
+
 exports.Listener = Listener;
+exports.BotListener = BotListener;

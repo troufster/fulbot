@@ -1,7 +1,7 @@
 "use strict";
 
 var irc = require("irc");
-var Listener = require("./listeners").Listener;
+var BotListener = require("./listeners").BotListener;
 var conf = require("./conf");
 
 var bot;
@@ -13,7 +13,7 @@ bot = new irc.Client(conf.server, conf.nick, {
 
 require('./utils.js').Utils.call(bot);
 
-let listener = new Listener(bot);
+let listener = new BotListener(bot);
 
 //Load plugins
 listener.loadPlugins(function() {
