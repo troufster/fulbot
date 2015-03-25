@@ -46,6 +46,10 @@ exports.parseUrl = function(message, cb){
     var gallery = message.match(/(?:imgur\.com\/gallery\/)(\w+)/i);
     // http://imgur.com/r/gifs/rf50wsJ
     var subreddit = message.match(/(?:imgur\.com\/)(r\/\w+\/\w+)/i);
+    // http://i.imgur.com/cVnv9LI.jpg
+    var iImage = message.match(/(?:i\.imgur\.com\/)(\w+)/i);
+    // not a good enough regexp on its own, but cba right now
+    var bah = message.match(/(?:imgur\.com\/)(\w+)/i);
 
     var _url;
     if(gallery){
@@ -54,13 +58,12 @@ exports.parseUrl = function(message, cb){
     else if(subreddit){
         _url = subreddit[1];
     }
-
-    // http://i.imgur.com/cVnv9LI.jpg
-    // http://imgur.com/WCnCSNh
-    //
-    // no way to get the title or description from these.
-    // there is an endpoint (https://api.imgur.com/3/image/cVnv9LI)
-    // but both title and description are always empty
+    else if(iImage){
+        _url = iImage[1];
+    }
+    else if(bah){
+        _url = bah[1];
+    }
 
     if(!_url){
         return;
