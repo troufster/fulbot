@@ -1,9 +1,11 @@
 "use strict";
-let listener = require('../listeners.js').Listener;
+let listener = require('../Listener.js').Listener;
+let plugin = require('../Plugin.js').Plugin;
 
 
-class Plugin extends listener{
+class lunch extends plugin{
   constructor(){
+    super();
     this.foodzors = [
       "chang-thai!!!",
       "kebabhouse",
@@ -21,17 +23,13 @@ class Plugin extends listener{
       "matkällaren"
     ];
 
-    this.listeners = [{
-      name : '!foodzor randomizer',
-      match : /\!lunch/i,
-      func : sayFood,
-      listen : ["#sogeti", "priv"]
-    }];
+    this.listeners = [new listener('!foodzor randomizer',/!lunch/i,this.sayFood,["#sogeti", "priv"])];
+
   }
 
   sayFood(bot, from, to, message) {
-    bot.say(to, foodzors[Math.floor(Math.random() * foodzors.length)]);
+    bot.say(to, this.foodzors[Math.floor(Math.random() * this.foodzors.length)]);
   }
 }
 
-exports.plugin = Plugin;
+exports.plugin = lunch;
