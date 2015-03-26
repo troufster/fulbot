@@ -10,6 +10,7 @@
     "buffertools": "2.x.x",
     "express": "^4.11.2",
     "irc": "0.3.x",
+    "xml2js": "*",
     "jade": "^1.9.2",
     "nickserv": "0.4.x"
   },
