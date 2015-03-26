@@ -41,7 +41,7 @@ class fulbot {
 
               let o = new plug();
               if (o instanceof Plugin) {
-                that.addListener(new plug());
+                that.addListener(o);
               }
             }
           }

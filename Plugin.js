@@ -1,6 +1,7 @@
 "use strict";
+var ResourceManager = require('./resourceManager.js').ResourceManager;
 
-class Plugin {
+class Plugin extends ResourceManager{
   constructor(){
     this.listeners = [];
   }
