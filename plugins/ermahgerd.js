@@ -59,7 +59,7 @@ function str_split(string, split_length) {
     }
 
     // Reduce duplicate letters
-    word = word.replace(/[^\wÅÄÖ\s]|(.)(?=\1)/gi, '');
+    word = word.replace(/[^\wÅÄÖ\s\W]|(\w)(?=\1)/gi, '');
 
     // Reduce adjacent vowels to one
     word = word.replace(/[AEIOUYÅÄÖ]{2,}/g, 'E');  // TODO: Keep Y as first letter
@@ -95,7 +95,7 @@ function str_split(string, split_length) {
     }
 
     // Reduce duplicate letters
-    word = word.replace(/[^\wÅÄÖ\s]|(.)(?=\1)/gi, '');
+    word = word.replace(/[^\wÅÄÖ\s\W]|(\w)(?=\1)/gi, '');
 
     // YELLOW -> YERLER -> YERLO
     if ((originalWord.substr(-3) == 'LOW') && (word.substr(-3) == 'LER')) {
