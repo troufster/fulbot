@@ -42,6 +42,8 @@ exports.parseUrl = function(message, cb){
         return;
     }
 
+    // todo make one regexp instead of this ugly mess
+
     // http://imgur.com/gallery/w1CJq
     var gallery = message.match(/(?:imgur\.com\/gallery\/)(\w+)/i);
     // http://imgur.com/r/gifs/rf50wsJ
@@ -53,7 +55,8 @@ exports.parseUrl = function(message, cb){
 
     var _url;
     if(gallery){
-        _url = "album/" + gallery[1];
+        //_url = "album/" + gallery[1];
+        _url = gallery[1];
     }
     else if(subreddit){
         _url = subreddit[1];
