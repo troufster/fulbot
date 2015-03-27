@@ -8,7 +8,7 @@ class Lunch extends Plugin {
   get entry() { return this.eat;}
 
   eat() {
-    var food = this.data;
+    let food = this.data;
     return food[Math.floor(Math.random() * food.length)];
   }
 
