@@ -9,4 +9,3 @@ let bot = injector.get(Fulbot);
 bot.connect();
 
 
-bot.client.on("message", () => { console.log(arguments)});
