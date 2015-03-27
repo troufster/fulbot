@@ -43,7 +43,7 @@ describe('Plugins', function() {
       bot.client.incomingMessage({
         from :"test",
         to : "#botdev",
-        message : "!lunch"
+        message : "!test"
       });
     });
 
