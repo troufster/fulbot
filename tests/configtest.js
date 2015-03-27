@@ -13,6 +13,7 @@ describe('Configuration', function() {
   });
 
   it('Should load configuration', function() {
-    console.log(conf);
+    assert.ok(conf.client !== undefined);
+    assert.ok(conf.client.port !== undefined);
   });
 });

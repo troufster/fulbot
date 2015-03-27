@@ -9,4 +9,4 @@ let injector = new di.Injector([MockPlugins]);
 
 let bot = injector.get(Fulbot);
 
-console.log(bot.plugins.read());
+
