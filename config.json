@@ -1,8 +1,0 @@
-{
-  "client": {
-    "server" : "irc.isolated.se",
-    "port" : 6667,
-    "channels" : ["#botdev"],
-    "nick" : "Durr"
-  }
-}

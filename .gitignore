@@ -5,6 +5,7 @@
 .idea/*
 *.player
 config.json
+data.json
 hax.js
 resources/*
 

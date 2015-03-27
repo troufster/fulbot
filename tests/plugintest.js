@@ -30,6 +30,12 @@ describe('Plugins', function() {
     });
   });
 
+  it('Should init plugin resource', function() {
+    var data = plugs.plugins.lunch.data;
+    assert.ok(data.length > 0);
+
+  });
+
   it('Should trigger plugins on message', function(done) {
 
     bot.connect().then(() => {
@@ -42,7 +48,6 @@ describe('Plugins', function() {
 
     bot.client.on("sentMessage", (message) => {
       assert.ok(bot.client.messages.length > 0);
-      console.log(bot.client.messages);
       done();
     });
   });

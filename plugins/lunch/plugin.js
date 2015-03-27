@@ -2,25 +2,11 @@
 
 let Plugin = require('../../lib/plugin');
 
-const food = [
-  "chang-thai!!!",
-  "kebabhouse",
-  "charken",
-  "gula huset",
-  "NH",
-  "cupolenburgare",
-  "tacobar",
-  "cloetta center",
-  "marcus pizzeria",
-  "texas",
-  "konsert & kongress",
-  "hagdahls",
-  "ghingis",
-  "matkällaren"
-];
-
 class Lunch extends Plugin {
+
   parseMessage(message){
+    var food = this.data;
+
     return new Promise((resolve, reject) => {
       resolve({
         to: message.to,
