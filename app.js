@@ -6,4 +6,3 @@ let injector = new di.Injector([]);
 
 let bot = injector.get(Fulbot);
 
-console.log(bot);
