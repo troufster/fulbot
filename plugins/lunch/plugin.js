@@ -4,16 +4,14 @@ let Plugin = require('../../lib/plugin');
 
 class Lunch extends Plugin {
 
-  parseMessage(message){
-    var food = this.data;
+  get match() { return [/^!lunch/i]; }
+  get entry() { return this.eat;}
 
-    return new Promise((resolve, reject) => {
-      resolve({
-        to: message.to,
-        message : food[Math.floor(Math.random() * food.length)]
-      });
-    });
+  eat() {
+    var food = this.data;
+    return food[Math.floor(Math.random() * food.length)];
   }
+
 }
 
 module.exports = Lunch;

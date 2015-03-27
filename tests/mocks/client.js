@@ -3,18 +3,21 @@ let di = require('di');
 let Client = require('../../lib/client');
 var EventEmitter = require('events');
 
-class MockClient extends EventEmitter {
-  constructor() {
-    this.connected = false;
-    this.messages = [];
-  }
+class MockClient extends Client {
 
   connect() {
+    this.actions = [];
+    this.messages = [];
     this.connected = true;
   }
 
   incomingMessage(message) {
     this.emit("message", message);
+  }
+
+  action(data) {
+    this.actions.push(data);
+    this.emit("sentAction", data);
   }
 
   sendMessage(message) {

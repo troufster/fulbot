@@ -2,10 +2,12 @@
   "name": "Fulbot-harmony",
   "version": "0.0.1",
   "dependencies": {
+    "buffertools": "^2.1.2",
     "di": "^2.0.0-pre-14",
     "irc": "^0.3.9",
     "lowdb": "^0.7.2",
     "mocha": "^2.2.1",
+    "mocha-steps": "0.0.1",
     "require-dir": "^0.3.0"
   }
 }

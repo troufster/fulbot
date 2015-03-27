@@ -36,6 +36,7 @@ describe('Plugins', function() {
 
   });
 
+
   it('Should trigger plugins on message', function(done) {
 
     bot.connect().then(() => {
@@ -48,7 +49,12 @@ describe('Plugins', function() {
 
     bot.client.on("sentMessage", (message) => {
       assert.ok(bot.client.messages.length > 0);
+      assert.ok(bot.client.messages[0] !== undefined);
+
       done();
     });
   });
+
+
+
 });
