@@ -48,6 +48,7 @@ describe('Plugins', function() {
     });
 
     bot.client.on("sentMessage", (message) => {
+      console.log(message);
       assert.ok(bot.client.messages.length > 0);
       assert.ok(bot.client.messages[0] !== undefined);
 

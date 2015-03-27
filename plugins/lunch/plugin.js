@@ -4,8 +4,12 @@ let Plugin = require('../../lib/plugin');
 
 class Lunch extends Plugin {
 
-  get match() { return [/^!lunch/i]; }
-  get entry() { return this.eat;}
+  get settings() {
+    return {
+      match : [/^!lunch/i],
+      entry : this.eat,
+      resources : true
+  }}
 
   eat() {
     let food = this.data;
