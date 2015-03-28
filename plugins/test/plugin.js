@@ -18,7 +18,7 @@ class Test extends Plugin {
     }}
 
   stuff() {
-    var x = bot;
+    var bot = this.bot;
     return "test";
   }
 
