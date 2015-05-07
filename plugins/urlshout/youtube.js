@@ -1,13 +1,23 @@
 "use strict";
-var http = require('http');
-
+var https = require('https');
+var conf = require("../../conf");
 
 
 
 function parseYoutube(id, _cb){
-  var url = 'http://gdata.youtube.com/feeds/api/videos/' + id + '?alt=json';
+  var url = 'https://www.googleapis.com/youtube/v3/videos?id=' + id + '&key=' + conf.youtubeAPIKey + '&fields=items(snippet(title))&part=snippet';
+
+  /*response:
+   {
+    "items": [{
+      "snippet": {
+        "title": "The milkshakes are so thick [Extended Clip]"
+      }
+    }]
+   }
+  */
   //entry.title.$t
-  http.get(url, function(res) {
+  https.get(url, function(res) {
     var data;
     res.setEncoding('utf8');
     res
@@ -21,7 +31,7 @@ function parseYoutube(id, _cb){
       .on('end',function(){
         if (data !== "Video not found") {
           var n = JSON.parse(data);
-          _cb(null, n.entry.title.$t);
+          _cb(null, n.items[0].snippet.title);
         }
       });
   }).on('error', function(e) {
