@@ -19,17 +19,16 @@ function parseSteam(id, _cb){
         }
       })
       .on('end',function(){
-        if (data !== "Video not found") {
+        if (this.statusCode === 200) {
           var n = JSON.parse(data);
+          if (!n[id].success ) {return;}
 
           var game = n[id].data;
 
           var text = game.name + ' --> '+ game.price_overview.currency + ' ' + game.price_overview.final/100;
 
-          if (game.price_overview.discount_percent > 0)
-          {
+          if (game.price_overview.discount_percent > 0) {
             text += ' (- ' + game.price_overview.discount_percent + ' %)';
-
           }
 
           _cb(null,  text);
