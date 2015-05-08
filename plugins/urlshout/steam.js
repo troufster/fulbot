@@ -25,10 +25,14 @@ function parseSteam(id, _cb){
 
           var game = n[id].data;
 
-          var text = game.name + ' --> '+ game.price_overview.currency + ' ' + game.price_overview.final/100;
-
-          if (game.price_overview.discount_percent > 0) {
-            text += ' (- ' + game.price_overview.discount_percent + ' %)';
+          var text = game.name + ' --> ';
+          if (!game.is_free) {
+            text += game.price_overview.currency + ' ' + game.price_overview.final/100;
+            if (game.price_overview.discount_percent > 0) {
+              text += ' (- ' + game.price_overview.discount_percent + ' %)';
+            }
+          } else{
+            text += ' free to play';
           }
 
           _cb(null,  text);
