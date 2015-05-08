@@ -41,13 +41,10 @@ function parseSteam(id, _cb){
 
 
 exports.parseUrl = function(message, cb){
-  var i = message.indexOf('store.steampowered.com/app/');
-  if (i === 0){return;}
+  var _url = message.match(/:?store\.steampowered\.com\/app\/(\d+)\/?/);
+  if (!_url){return;}
 
-  var id = message.substr(i+27);
-  id = id.replace('/','');
-
-  parseSteam(id, function(err, d) {
+  parseSteam(_url[1], function(err, d) {
     cb(err,d);
   });
 }
