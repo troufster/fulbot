@@ -1,11 +1,14 @@
 "use strict";
-var http = require('http');
+var http = require('https');
 
 
 
-function parseSpotify(uri, _cb){
+function parseSpotify(part, id, _cb){
 
-  var url = 'http://ws.spotify.com/lookup/1/.json?uri=' + uri;
+  //var url = 'http://ws.spotify.com/lookup/1/.json?uri=' + uri;
+
+  var url = 'https://api.spotify.com/v1/' + part + 's/' + id;
+
 
   http.get(url, function(res) {
     var data;
@@ -21,12 +24,12 @@ function parseSpotify(uri, _cb){
       .on('end',function(){
         if (data === undefined) {return;}
         var n = JSON.parse(data);
-        if (n.album !== undefined){
-          _cb(null, n.album.name + " - " + n.album.artist );
-        } else if (n.track === undefined) {
-          _cb(null, n.artist.name );
+        if (part === "album"){
+          _cb(null, n.name + " - " + n.artists[0].name );
+        } else if (part === "artist") {
+          _cb(null, n.name );
         } else {
-          _cb(null, n.track.name + " - " + n.track.artists[0].name );
+          _cb(null, n.name + " - " + n.artists[0].name );
         }
       });
   }).on('error', function(e) {
@@ -41,21 +44,26 @@ exports.parseUrl = function(message, cb){
   if (_url === null){return;}
 
   var url = _url[0];
-  var uri = null;
+  var c = null;
+  var id = null;
+
 
   if (url.indexOf('open.spotify.com') > -1 ) {
     //http://open.spotify.com/track/66yFvHn4fQRMic2e2uljTJ
     var r = url.split('/');
-    if (r[r.length-2] == "track" || r[r.length-2] == "artist" || r[r.length-2] == "album") {
-      uri = "spotify:" +  r[r.length-2] + ":" + r[r.length-1] ;
+    if (r[r.length-2] === "track" || r[r.length-2] === "artist" || r[r.length-2] === "album") {
+      c = r[r.length-2] ;
+      id = r[r.length-1] ;
     }
   } else if (url.match(/spotify:(track|album|artist):([a-zA-Z0-9]{22})/i)) {
     //spotify:track:66yFvHn4fQRMic2e2uljTJ
-    uri = url;
+    var t = url.split(':');
+    c = t[1] ;
+    id = t[2] ;
   }
 
-  if (uri !== null) {
-    parseSpotify(uri, function(err, d) {
+  if (c !== null && id !== null) {
+    parseSpotify(c,id, function(err, d) {
       cb(err,d);
     });
   }
