@@ -120,7 +120,7 @@ function updateNick(bot, oldNick, newNick, message){
 exports.listeners = function(){
   return [{
     name : 'Url Parser',
-    match : /(?:(?:(?:https?:\/\/)|(?:www\.))(?:(?:[-\w/_\.]*(?:\?\S+)?))?)|(?:spotify:(?:track|album|artist):(?:[a-zA-Z0-9]{22}))/i,
+    match : /(.*)/i,
     func : parseUrl,
     listen : ["#botdev","#sogeti"]
   },
